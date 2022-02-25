@@ -3,11 +3,11 @@ from socket import*
 serverName = 'hostname'
 serverPort = 12000
 
-clientSocket = socket(AF_INET,SOCK_DGRAM)
+clientSocket = socket(AF_INET, SOCK_DGRAM)
 message = raw_input("message")
-clientSocket.sendto(message.encode(),serverName,serverPort))
+clientSocket.sendto(message.encode(), (serverName, serverPort))
 
 modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
 
-print modifiedMessage.decode()
+print(modifiedMessage.decode())
 clientSocket.close()
