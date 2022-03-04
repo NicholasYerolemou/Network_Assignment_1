@@ -2,8 +2,9 @@ from socket import *
 from Message import Message
 
 
-port = 12000
+port = 12005
 host = "127.0.0.1"
+connected = {}
 
 
 def processPacket(msg, client):
@@ -14,11 +15,11 @@ def processPacket(msg, client):
         msg = Message(reply, "encode")
         sock.sendto(msg.toString().encode(), client)
     elif(id == 3):
-        print("messaged recieved from client")
-        targetClient = (msg.getIP(), 12000)  # create new person to send to
+        #print("messaged recieved from client")
+        print("sending message to target")
+        targetClient = (msg.getIP(), 12005)  # create new person to send to
         stuff = msg.toString()
-        # print(stuff)
-        sock.sendto(stuff.encode(), (msg.getIP(), 12000))
+        sock.sendto(stuff.encode(), client)
     else:
         print("error")
 
@@ -27,9 +28,7 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
     sock.bind((host, port))
     print("Server ready to recive ...")
     while True:
-        print("Server ready to recive ...")
         packet, clientAddress = sock.recvfrom(2048)
         # creates a message object with the data
         message = Message(packet.decode(), "decode")
-        # print(packet.decode())
         processPacket(message, clientAddress)
