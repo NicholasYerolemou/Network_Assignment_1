@@ -18,7 +18,7 @@ def processPacket(msg, client):
 
 with socket(AF_INET, SOCK_DGRAM) as sock:
     sock.bind((host, port))
-    print("Server ready to recive ...")
+    print("Server ready to recieve ...")
     while True:
         packet, clientAddress = sock.recvfrom(2048)
         # creates a message object with the data

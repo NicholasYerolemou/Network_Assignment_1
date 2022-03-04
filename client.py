@@ -11,6 +11,18 @@ def processPacket(msg):
         print("connected to server")
     else:
         print("not connected")
+    if(msg.getID() == 2):
+        print("create chat")
+    if(msg.getID() == 3):
+        print("send message")
+    if(msg.getID() == 4):
+        print("end chat")
+    if(msg.getID() == 5):
+        print("add participant")
+    if(msg.getID() == 6):
+        print("request chat list")
+    if(msg.getID() == 7):
+        print("leave chat")
 
 
 with socket(AF_INET, SOCK_DGRAM) as sock:
