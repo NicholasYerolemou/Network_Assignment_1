@@ -8,9 +8,6 @@ serverName = "127.0.0.1"  # set the servers IP address
 serverPort = 12005  # server port number
 server = (serverName, serverPort)
 
-port = 11000
-host = "127.0.0.1"
-
 
 def processPacket(msg):
     if(msg.getID() == 1):
@@ -34,7 +31,6 @@ def processInput(input):
     content = {"ID": 3, "IP": "127.0.0.1", "pin": 1, "data": input}
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)
-    #print("message sent")
 
 
 def connectToServer():

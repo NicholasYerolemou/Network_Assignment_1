@@ -13,13 +13,29 @@ def processPacket(msg, client):
         print("Connected to client")
         reply = {"ID": 1}
         msg = Message(reply, "encode")
-        sock.sendto(msg.toString().encode(), client)
-    elif(id == 3):
-        #print("messaged recieved from client")
-        print("sending message to target")
-        targetClient = (msg.getIP(), 12005)  # create new person to send to
-        stuff = msg.toString()
-        sock.sendto(stuff.encode(), client)
+        # add the client to list of connected clients
+        if client[0] in connected:
+            # there is onlt 1 client with this IP connected
+            if(isinstance(connected[client[0]], int)):
+                temp = [connected[client[0]], client[1]]
+                connected[client[0]] = temp
+                sock.sendto(msg.toString().encode(), client)
+            else:
+                print("unable to connect 3 clients with the same IP address")
+
+        else:
+            temp = {client[0]: client[1]}
+            connected.update(temp)
+            sock.sendto(msg.toString().encode(), client)
+
+    elif(id == 3):  # might need fixing
+        ports = connected[msg.getIP()]
+        print("the ports for this IP are", ports)
+        if client[1] == ports[0]:
+            target = (msg.getIP(), ports[1])
+        else:
+            target = (msg.getIP(), ports[0])
+        sock.sendto(msg.toString().encode(), target)
     else:
         print("error")
 
