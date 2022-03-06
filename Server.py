@@ -30,7 +30,6 @@ def processPacket(msg, client):
 
     elif(id == 3):  # might need fixing
         ports = connected[msg.getIP()]
-        print("the ports for this IP are", ports)
         if client[1] == ports[0]:
             target = (msg.getIP(), ports[1])
         else:
@@ -47,4 +46,5 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
         packet, clientAddress = sock.recvfrom(2048)
         # creates a message object with the data
         message = Message(packet.decode(), "decode")
+        # print(message.toString())
         processPacket(message, clientAddress)

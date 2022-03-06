@@ -15,8 +15,7 @@ def processPacket(msg):
     elif(msg.getID() == 2):
         print("create chat")
     elif(msg.getID() == 3):
-        print("send message")
-        print(msg.getData())
+        print("A user said", msg.getData())
     elif(msg.getID() == 4):
         print("end chat")
     elif(msg.getID() == 5):
@@ -61,9 +60,8 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
             #print("checking for recieved messages")
             try:
                 packet, serverAddress = sock.recvfrom(2048)
-                print("message recieved!!!!!!!!!!!!!!!!!")
-                print(packet.decode())
                 message = Message(packet.decode(), "decode")
+
                 processPacket(message)  # a messages was recieved process it
             except:  # socket.timeout(): fix that later so it excepts a specific exception rather than all
                 #print("no messages recieved \n")

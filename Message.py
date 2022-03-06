@@ -4,7 +4,9 @@ class Message:
 
     # used when decoding a datagram sent to you
     # the full datagram sent to the server is passed here as a string
+
     def __init__(self, datagram, code):
+        self.msg = {"ID": -1, "IP": "127.0.0.1", "pin": 0, "data": ""}
         if(code == "decode"):
             words = datagram.split()  # splits the datagram into seperate words seperated by a space
             list_iterator = iter(words)  # creates an iterator over the array
@@ -12,6 +14,9 @@ class Message:
             # moves to the second item in the iterator i.e. skipping the word that held ID
             next(list_iterator)
             self.msg["IP"] = words[1]
+            next(list_iterator)
+
+            self.msg["pin"] = words[2]
             next(list_iterator)
 
             for word in list_iterator:  # loops through the left over words and places them into data
@@ -40,7 +45,6 @@ class Message:
         return self.msg["pin"]
 
     def toString(self):  # returns a string of each item in the dict
-        print("toString method called")
         output = ""
         for key in self.msg:
             output = output + str(self.msg[key]) + " "
