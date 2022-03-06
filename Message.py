@@ -6,8 +6,7 @@ class Message:
     # the full datagram sent to the server is passed here as a string
 
     def __init__(self, datagram, code):
-        msg = {"ID": -1, "IP": ["127.0.0.1"],
-               "chatID": 0, "pin": 0, "data": ""}
+        msg = {"ID": -1, "chatID": 0, "pin": 0, "data": ""}
 
         if(code == "decode"):
             words = datagram.split()  # splits the datagram into seperate words seperated by a space
@@ -23,12 +22,12 @@ class Message:
             next(list_iterator)
 
             for word in list_iterator:  # loops through the left over words and places them into data
-                self.msg["data"] = self.msg["data"] + word
+                self.msg["data"] = self.msg["data"] + " " + word
 
         else:
             if "ID" in datagram:
                 self.msg["ID"] = datagram["ID"]
-            if "IP" in datagram:
+            if "chatID" in datagram:
                 self.msg["chatID"] = datagram["chatID"]
             if "pin" in datagram:
                 self.msg["pin"] = datagram["pin"]
@@ -41,7 +40,7 @@ class Message:
     def getData(self):
         return self.msg["data"]
 
-    def getchatID(self):
+    def getChatID(self):
         return self.msg["chatID"]
 
     def getPin(self):

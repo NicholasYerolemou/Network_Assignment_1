@@ -10,10 +10,12 @@ server = (serverName, serverPort)
 
 
 def processPacket(msg):
+    print("method called")
+    print(msg.getID())
     if(msg.getID() == 1):
         print("connected to server\n")
     elif(msg.getID() == 2):
-        print("create chat")
+        print("You have been added to chat:", msg.getChatID())
     elif(msg.getID() == 3):
         print("A user said", msg.getData())
     elif(msg.getID() == 4):
@@ -27,9 +29,20 @@ def processPacket(msg):
 
 
 def processInput(input):
-    content = {"ID": 3, "IP": "127.0.0.1", "pin": 1, "data": input}
-    msg = Message(content, "encode")
-    sock.sendto(msg.toString().encode(), server)
+    words = input.split()
+    code = words[0]
+
+    if code == "NC":
+        content = {"ID": 2, "data": input[2:]}
+        msg = Message(content, "encode")
+        sock.sendto(msg.toString().encode(), server)
+
+    elif code == "NM":
+        content = {"ID": 3, "chatID": 1, "pin": 1, "data": input}
+        msg = Message(content, "encode")
+        sock.sendto(msg.toString().encode(), server)
+    else:
+        print("invalid message")
 
 
 def connectToServer():
@@ -57,18 +70,18 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
     # we have succesfully connected to the server
     while True:
         while True:
-            #print("checking for recieved messages")
+            # print("checking for recieved messages")
             try:
                 packet, serverAddress = sock.recvfrom(2048)
                 message = Message(packet.decode(), "decode")
-
                 processPacket(message)  # a messages was recieved process it
             except:  # socket.timeout(): fix that later so it excepts a specific exception rather than all
-                #print("no messages recieved \n")
+                # print("no messages recieved \n")
                 break
         # waits 5 seconds for user input
         print("waiting for user input ...")
-        i, o, e = select.select([sys.stdin], [], [], 5)
+        # type NC ip ip ip ...
+        i, o, e = select.select([sys.stdin], [], [], 10)
         if(i):
             input = sys.stdin.readline()
             processInput(input)
