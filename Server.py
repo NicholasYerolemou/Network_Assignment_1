@@ -54,6 +54,9 @@ def processPacket(msg, client):
                 sock.sendto(msg.toString().encode(), client)
             else:
                 print("unable to connect 3 clients with the same IP address")
+                reply = {"ID": 0}
+                msg = Message(reply, "encode")
+                sock.sendto(msg.toString().encode(), client)
 
         else:
             temp = {client[0]: client[1]}
@@ -63,7 +66,6 @@ def processPacket(msg, client):
     elif(id == 1):
         print("code is 1")
     elif(id == 2):
-        print("Chat created")
         # make new chat
         # the data contains all the IPs of the clients added to the chat
         members = msg.getData().split()  # gets IP addresses stored in data
@@ -71,7 +73,6 @@ def processPacket(msg, client):
         chatID = 0
         if(len(chats) == 0):  # if no chats currently exist
             chatID = 1
-
             chat = Chat(chatID, members)
             temp = {chatID: chat}
             chats.update(temp)
@@ -89,13 +90,17 @@ def processPacket(msg, client):
         msg = Message(reply, "encode")
         sock.sendto(msg.toString().encode(), client)
 
-    elif(id == 3):  # might need fixing
-        ports = connected[msg.getIP()]
-        if client[1] == ports[0]:
-            target = (msg.getIP(), ports[1])
-        else:
-            target = (msg.getIP(), ports[0])
-        sock.sendto(msg.toString().encode(), target)
+    elif(id == 3):  # recieved new message
+        chatID = msg.getChatID()
+        # add the new message to the chat history
+        chats[chatID].addMessage(client[0], msg.getData())
+
+        # send back the new chat history
+        data = chats[msg.getChatID()].getChatHistory()
+        reply = {"ID": 9, "data": data}
+        msg = Message(reply, "encode")
+        sock.sendto(msg.toString().encode(), client)
+
     elif(id == 4):
         print("end chat")
     elif(id == 5):
@@ -104,11 +109,9 @@ def processPacket(msg, client):
         del connected[client[0]]  # removes user from connect dict
     elif(id == 7):
         print("leave chat")
-
     elif(id == 8):
         data = ""
         for key in chats.keys():  # loop through each key in the chats dict
-            print(key)
             temp = chats[key]
             IPs = chats[key].getIPs()
             if(client[0] in IPs):  # if the current clients IP is in this chat
@@ -124,6 +127,12 @@ def processPacket(msg, client):
         reply = {"ID": 8, "data": data}
         msg = Message(reply, "encode")
         sock.sendto(msg.toString().encode(), client)
+    elif(id == 9):  # client views a specific chat
+        data = chats[msg.getChatID()].getChatHistory()
+        reply = {"ID": 9, "data": data}
+        msg = Message(reply, "encode")
+        sock.sendto(msg.toString().encode(), client)
+
     else:
         print("error")
 
