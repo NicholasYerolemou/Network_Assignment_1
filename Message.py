@@ -6,7 +6,7 @@ class Message:
     # the full datagram sent to the server is passed here as a string
 
     def __init__(self, datagram, code):
-        msg = {"ID": -1, "chatID": 0, "pin": 0, "data": ""}
+        self.msg = {"ID": -1, "chatID": 0, "pin": 0, "data": ""}
 
         if(code == "decode"):
             words = datagram.split()  # splits the datagram into seperate words seperated by a space

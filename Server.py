@@ -71,22 +71,23 @@ def processPacket(msg, client):
         chatID = 0
         if(len(chats) == 0):  # if no chats currently exist
             chatID = 1
-            temp = {chatID: Chat(chatID, members)}
+
+            chat = Chat(chatID, members)
+            temp = {chatID: chat}
             chats.update(temp)
         else:
             # get the most recent chat id and add 1 to it
             # chatID = chats[size-1].getID() + 1
             temp = list(chats.keys())
             chatID = temp[-1] + 1
+            temp = members
             temp = {chatID: Chat(chatID, members)}
             chats.update(temp)
 
         # send a message to all connected clients they have been added to a chat
-        clientsToNotify = getConnectedClients(members)
-        for client in clientsToNotify:
-            reply = {"ID": 2, "chatID": chatID}
-            msg = Message(reply, "encode")
-            sock.sendto(msg.toString().encode(), client)
+        reply = {"ID": 2, "chatID": chatID}
+        msg = Message(reply, "encode")
+        sock.sendto(msg.toString().encode(), client)
 
     elif(id == 3):  # might need fixing
         ports = connected[msg.getIP()]
@@ -104,6 +105,25 @@ def processPacket(msg, client):
     elif(id == 7):
         print("leave chat")
 
+    elif(id == 8):
+        data = ""
+        for key in chats.keys():  # loop through each key in the chats dict
+            print(key)
+            temp = chats[key]
+            IPs = chats[key].getIPs()
+            if(client[0] in IPs):  # if the current clients IP is in this chat
+                temp = ""
+                list_iterator = iter(IPs)
+                next(list_iterator)
+                temp = IPs[0]
+                for IP in list_iterator:
+                    temp = temp + "," + IP  # produce comma seperarted list of IPs
+                # add chatID: to the front of that list
+                temp = str(key) + ":" + temp
+                data = data + temp + " "
+        reply = {"ID": 8, "data": data}
+        msg = Message(reply, "encode")
+        sock.sendto(msg.toString().encode(), client)
     else:
         print("error")
 
