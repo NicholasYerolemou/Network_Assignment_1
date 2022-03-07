@@ -20,7 +20,7 @@ class Chat:
                 output = output + "," + i[1]
                 prevIP = i[0]
             else:
-                output = " " + i[0] + ":" + i[1]
+                output = "_" + i[0] + ":" + i[1]
                 prevIP = i[0]
 
         return output

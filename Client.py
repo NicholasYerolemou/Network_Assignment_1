@@ -184,6 +184,26 @@ def openChat():
     bottomFrame.pack(side=tk.TOP)
 
 
+def openSpecificChat(chatID):
+    content = {"ID": 9, "chatID": chatID}
+    msg = Message(content, "encode")
+    sock.sendto(msg.encode(), server)  # requests chat history
+
+    pakcet, serverName = sock.recvfrom(2048)
+    msg = Message(packet, "decode")
+
+    chatHistory = []
+    # data in format [('127.0.0', ['hello', 'how are you', ' sttsfd']), ('123232.123', ['afadsfa', 'asdfasf', 'adfas'])
+    items = msg.getData().split("_")
+
+    for item in items:
+        parts = item.split(":")
+        ip = parts[0]
+        messages = parts[1].split(",")
+        temp = (ip, messages)
+        chatHistory.append(temp)
+
+
 def exitApp():
     print("exit")
 
