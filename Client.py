@@ -154,13 +154,14 @@ def openChat():
 
     temp = data.split()
     chatID = 0
-    chats = dict()
+    # 2d array holds chat id and ips in format [('1', ['123', '1234', '234']), ('2', ['1234', '1234', '231412'])]
+    chats = []
     for t in temp:
         parts = t.split(":")
         chatID = parts[0]  # gets the stuff on the left side of the colon
         chatIPS = parts[1].split(",")
-        temp = {"chatID": chatID, "chatIPs": chatIPS}
-        chats.update(temp)
+        temp = (chatID, chatIPS)
+        chats.append(temp)
 
     displayFrame = tk.Frame(openChat)
     lblLine = tk.Label(
