@@ -40,38 +40,32 @@ def connectServer(name):  # connects the client to the server
             title="ERROR!!!", message="You MUST enter your name in order to connect to the server <e.g. John>")
     else:
         Name = name
-        # connectToServer()
-        menu()
+        menu(serverWindow)
 
 
-def menu():
-    serverWindow.destroy()
+def menu(window):
+    window.destroy()
     window = tk.Tk()
     window.title("MAIN MENU")
 
     window.geometry("500x500")
     window.configure(bg='WHITE')
 
-    lblWelcome = tk.Label(window, text="WELCOME!", font=(
-        'Helvatical bold', 30), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
-    lblOption = tk.Label(window, text="Please select an option:", font=(
-        'Helvatical bold', 20), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
+    lblWelcome = tk.Label(window, text="WELCOME!", font=('Helvatical bold', 30), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
+    lblOption = tk.Label(window, text="Please select an option:", font=('Helvatical bold', 20), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
 
-    btnCreateChat = tk.Button(window, text="START NEW CHAT", width=200, height=5,
-                              bg='#a83f2c', fg='WHITE', font=('Helvatical bold', 15), command=lambda: newChat())
+    btnCreateChat = tk.Button(window, text="START NEW CHAT", width=200, height=5,bg='#a83f2c', fg='WHITE', font=('Helvatical bold', 15), command=lambda: newChat(window))
     btnCreateChat.pack(side=tk.TOP)
 
-    btnCreateChat = tk.Button(window, text="OPEN EXISTING CHAT", width=200, height=5,
-                              bg='#a83f2c', fg='WHITE', font=('Helvatical bold', 15), command=lambda: openChat())
-    btnCreateChat.pack(side=tk.TOP)
+    btnOpenChat = tk.Button(window, text="OPEN EXISTING CHAT", width=200, height=5, bg='#a83f2c', fg='WHITE', font=('Helvatical bold', 15), command=lambda: openChat(window))
+    btnOpenChat.pack(side=tk.TOP)
 
-    btnCreateChat = tk.Button(window, text="EXIT", width=200, height=5, bg='#a83f2c', fg='WHITE', font=(
-        'Helvatical bold', 15), command=lambda:  exitApp())
-    btnCreateChat.pack(side=tk.TOP)
+    btnExit = tk.Button(window, text="EXIT", width=200, height=5, bg='#a83f2c', fg='WHITE', font=('Helvatical bold', 15), command=lambda:  exitApp(window))
+    btnExit.pack(side=tk.TOP)
 
 
-def newChat():
-
+def newChat(window):
+    window.destroy()
     temp = {"ID": 2}
     msg = Message(temp, "encode")
     # creates a new chat with the server with just the client in
@@ -89,16 +83,18 @@ def newChat():
 
     topFrame = tk.Frame(newChat)
     topFrame.pack(side=tk.TOP)
+    
+    btnBack = tk.Button(topFrame, text="RETURN", command=lambda: menu(newChat))
+    btnBack.pack(side=tk.LEFT)
 
     lblIP = tk.Label(topFrame, text="Their IP:").pack(side=tk.LEFT)
     entIP = tk.Entry(topFrame)
     entIP.pack(side=tk.LEFT)
 
-    btnAddUser = tk.Button(topFrame, text="CONNECT", command=lambda: connectUser(
-        entIP, chats[-1], btnConnect, tkMessage))
+    btnAddUser = tk.Button(topFrame, text="CONNECT", command=lambda: connectUser(entIP, chats[-1], btnConnect, tkMessage))
     btnAddUser.pack(side=tk.LEFT)
 
-    btnExit = tk.Button(topFrame, text="EXIT", command=lambda: exitApp())
+    btnExit = tk.Button(topFrame, text="EXIT", command=lambda: exitApp(newChat))
     btnExit.pack(side=tk.RIGHT)
 
     displayFrame = tk.Frame(newChat)
@@ -118,8 +114,7 @@ def newChat():
     tkMessage = tk.Text(bottomFrame, height=2, width=55)
     tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
     tkMessage.config(highlightbackground="grey", state="disabled")
-    tkMessage.bind("<Return>", (lambda event: getChatMessage(
-        tkMessage.get("1.0", tk.END), tkDisplay, tkMessage, newChat)))
+    tkMessage.bind("<Return>", (lambda event: getChatMessage(tkMessage.get("1.0", tk.END), tkDisplay, tkMessage, newChat)))
     bottomFrame.pack(side=tk.BOTTOM)
 
 
@@ -150,7 +145,8 @@ def send_mssage_to_server(msg, window):
     sock.sendto(msg.toString().encode(), server)
 
 
-def openChat():
+def openChat(window):
+    window.destroy()
     openChat = tk.Tk()
     openChat.title("OpenChat")
 
@@ -182,20 +178,22 @@ def openChat():
     tkDisplay = tk.Text(displayFrame, height=20, width=55)
     tkDisplay.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0))
     scrollBar.config(command=tkDisplay.yview)
-    tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7",
-                     highlightbackground="grey", state="disabled")
+    tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7", highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
 
     bottomFrame = tk.Frame(openChat)
-    lblHeading = tk.Label(
-        bottomFrame, text="Type the number of the chat you'd like to open:").pack(side=tk.TOP)
+    lblHeading = tk.Label(bottomFrame, text="Type the number of the chat you'd like to open:").pack(side=tk.TOP)
 
     chatNum = tk.Entry(bottomFrame)
     chatNum.pack(side=tk.BOTTOM)
+    print(chatNum.get())
     bottomFrame.pack(side=tk.TOP)
 
 
-def openSpecificChat(chatID):
+
+
+def openSpecificChat(chatID, window):
+    window.destroy()
     content = {"ID": 9, "chatID": chatID}
     msg = Message(content, "encode")
     sock.sendto(msg.encode(), server)  # requests chat history
@@ -215,10 +213,6 @@ def openSpecificChat(chatID):
         chatHistory.append(temp)
 
 
-def exitApp():
-    print("exit")
-
-
 def connectUser(entIP, chatID, btnConn, tkMessage):  # adds a user to a specific chat
     global ip, client
 
@@ -226,12 +220,16 @@ def connectUser(entIP, chatID, btnConn, tkMessage):  # adds a user to a specific
         tk.messagebox.showerror(
             title="ERROR!!!", message="You MUST enter the IP address of the person you wish to chat with <e.g. 203.0.113.42>")
     else:
-        # entIP.config(state=tk.DISABLED)
-        # btnConn.config(state=tk.DISABLED)
+        entIP.config(state=tk.DISABLED)
+        btnConn.config(state=tk.DISABLED)
         # tkMessage.config(state=tk.NORMAL)
         content = {"ID": 5, "chatID": chatID, "data": str(entIP.get())}
         msg = Message(content, "encode")
         sock.sendto(msg.toString().encode(), server)
+
+def exitApp(window):
+    window.destroy()
+    exit(0)
 
 
 def connectToServer():
