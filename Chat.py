@@ -2,7 +2,7 @@ from Message import *
 
 
 class Chat:
-    chatHistory = list()  # [[IP],[message], [IP][message]]
+    chatHistory = list()  # [[IP,message] [IP,message]]
     members = []
     msg = Message("", "")
     chatId = 0
@@ -14,16 +14,23 @@ class Chat:
     def getChatHistory(self):
         output = ""
         prevIP = ""
-        output = ""
-        for i in self.chatHistory:
-            if(i[0] == prevIP):
-                output = output + "," + i[1]
-                prevIP = i[0]
-            else:
-                output = "_" + i[0] + ":" + i[1]
-                prevIP = i[0]
+        counter = 1
 
-        return output
+        for i in self.chatHistory:
+            stuff = ""
+            ip = i[0]
+            data = i[1]
+
+            if (ip == prevIP):
+                stuff = stuff + "," + i[1]
+                output = output + stuff
+                prevIP = ip
+            else:
+                stuff = i[1]
+                output = output + "_" + ip + ":" + stuff
+                counter = 0
+                prevIP = ip
+        return output[1:]
 
     def getID(self):
         return self.chatId

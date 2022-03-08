@@ -97,6 +97,7 @@ def processPacket(msg, client):
 
         # send back the new chat history
         data = chats[msg.getChatID()].getChatHistory()
+        print(data)
         reply = {"ID": 9, "data": data}
         msg = Message(reply, "encode")
         sock.sendto(msg.toString().encode(), client)
@@ -109,7 +110,6 @@ def processPacket(msg, client):
         chat = chats[chatID]  # the chat this user should be added to
         newUser = newUser.strip()
         chat.addMember(newUser)
-        print(chats[chatID].getIPs())
 
     elif(id == 6):
         del connected[client[0]]  # removes user from connect dict
