@@ -133,33 +133,22 @@ def getChatMessage(input, chatID, display, message, window):
     texts = tkDisplay.get("1.0", tk.END).strip()
 
     tkDisplay.config(state=tk.NORMAL)
-    if len(texts) < 1:
-        tkDisplay.insert(tk.END, "You->" + input,
-                         "tag_your_message")  # no line
-    else:
-        tkDisplay.insert(tk.END, "\n\n" + "You->" + input, "tag_your_message")
 
     tkDisplay.config(state=tk.DISABLED)
     print(input)
     tkDisplay.config(state=tk.DISABLED)
 
-    send_mssage_to_server(msg, window)
-
     tkDisplay.see(tk.END)
     tkMessage.delete('1.0', tk.END)
-
+    
     # this returns the chathistory - print this to the screen
     print(send_mssage_to_server(input, chatID, window))
+    display = send_mssage_to_server(input, chatID, window)
+    tkDisplay.config(state=tk.NORMAL)
+    tkDisplay.delete('1.0', tk.END)
+    tkDisplay.insert(tk.END, display)
+    tkDisplay.config(state=tk.DISABLED)
     #[(' 127.0.0.1', [' hello',"other messages"])]
-#def update_chat(chatHistory):
-   # temp = 
-    
-    #if len(texts) < 1:
-        #tkDisplay.insert(tk.END, "You->" + msg, "tag_your_message")  # no line
-    #else:
-       # tkDisplay.insert(tk.END, "\n\n" + "You->" + msg, "tag_your_message")
-
-
 
 def send_mssage_to_server(input, chatID, window):
     content = {"ID": 3, "chatID": chatID, "data": input}
@@ -246,9 +235,8 @@ def update_chat_list(names, tkDisplay):
     tkDisplay.delete('1.0', tk.END)
 
     for c in names:
-       for t in c:
-            tkDisplay.insert(c)
-        
+        display = "ChatID:", c[0], " Members:", c[1], "\n"
+        tkDisplay.insert(tk.END, display)
     tkDisplay.config(state=tk.DISABLED)
 
 
@@ -313,6 +301,7 @@ def openSpecificChat(chatID, window):
         messages = parts[1].split(",")
         temp = (ip, messages)
         chatHistory.append(temp)
+
 
 
 def disable(entIP, chatID, btnConn, tkMessage):  # adds a user to a specific chat
