@@ -28,8 +28,7 @@ entName = tk.Entry(serverWindow, bg='WHITE')
 entName.pack(side=tk.LEFT)
 
 
-btnConnect = tk.Button(serverWindow, text="CONNECT", bg='WHITE',
-                       width=20, command=lambda: connectServer(entName.get()))
+btnConnect = tk.Button(serverWindow, text="CONNECT", bg='WHITE', width=20, command=lambda: connectServer(entName.get()))
 btnConnect.pack(side=tk.LEFT)
 
 
@@ -91,23 +90,21 @@ def newChat(window):
     entIP = tk.Entry(topFrame)
     entIP.pack(side=tk.LEFT)
 
-    btnAddUser = tk.Button(topFrame, text="CONNECT", command=lambda: connectUser(entIP, chats[-1], btnConnect, tkMessage))
+    btnAddUser = tk.Button(topFrame, text="ADD PARTICIPANT", command=lambda: disable(entIP, chats[-1], btnConnect, tkMessage))
     btnAddUser.pack(side=tk.LEFT)
 
     btnExit = tk.Button(topFrame, text="EXIT", command=lambda: exitApp(newChat))
     btnExit.pack(side=tk.RIGHT)
 
     displayFrame = tk.Frame(newChat)
-    lblLine = tk.Label(
-        displayFrame, text="*********************************************************************").pack()
+    lblLine = tk.Label(displayFrame, text="*********************************************************************").pack()
     scrollBar = tk.Scrollbar(displayFrame)
     scrollBar.pack(side=tk.RIGHT, fill=tk.Y)
     tkDisplay = tk.Text(displayFrame, height=20, width=55)
     tkDisplay.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0))
     tkDisplay.tag_config("tag_your_message", foreground="blue")
     scrollBar.config(command=tkDisplay.yview)
-    tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7",
-                     highlightbackground="grey", state="disabled")
+    tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7", highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
 
     bottomFrame = tk.Frame(newChat)
@@ -158,7 +155,6 @@ def openChat(window):
     packet, serverName = sock.recvfrom(2048)
     msg = Message(packet.decode(), "decode")
     data = msg.getData()
-
     temp = data.split()
     chatID = 0
     # 2d array holds chat id and ips in format [('1', ['123', '1234', '234']), ('2', ['1234', '1234', '231412'])]
@@ -171,8 +167,9 @@ def openChat(window):
         chats.append(temp)
 
     displayFrame = tk.Frame(openChat)
-    lblLine = tk.Label(
-        displayFrame, text="Chat list:\n*********************************************************************").pack()
+   # btnExit = tk.Button(displayFrame, text="EXIT", command=lambda: exitApp(openChat))
+   # btnExit.pack(side=tk.LEFT)
+    lblLine = tk.Label(displayFrame, text="Chat list:\n*********************************************************************").pack()
     scrollBar = tk.Scrollbar(displayFrame)
     scrollBar.pack(side=tk.RIGHT, fill=tk.Y)
     tkDisplay = tk.Text(displayFrame, height=20, width=55)
@@ -180,17 +177,24 @@ def openChat(window):
     scrollBar.config(command=tkDisplay.yview)
     tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7", highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
-
+    update_chat_list(chatIPS, tkDisplay)
+    
     bottomFrame = tk.Frame(openChat)
-    lblHeading = tk.Label(bottomFrame, text="Type the number of the chat you'd like to open:").pack(side=tk.TOP)
-
+    lblHeading = tk.Label(bottomFrame, text="Type the number of the chat you'd like to open:").pack(side=tk.LEFT)
     chatNum = tk.Entry(bottomFrame)
-    chatNum.pack(side=tk.BOTTOM)
-    print(chatNum.get())
+    chatNum.pack(side=tk.LEFT)
+    
+    btnOpen = tk.Button(bottomFrame, text="OPEN CHAT", command=lambda: openSpecificChat(chatID, openChat))
+    btnOpen.pack(side=tk.RIGHT)
     bottomFrame.pack(side=tk.TOP)
 
+def update_chat_list(names, tkDisplay):
+    tkDisplay.config(state=tk.NORMAL)
+    tkDisplay.delete('1.0', tk.END)
 
-
+    for c in names:
+        tkDisplay.insert(tk.END, c+"\n")
+    tkDisplay.config(state=tk.DISABLED)
 
 def openSpecificChat(chatID, window):
     window.destroy()
@@ -213,7 +217,7 @@ def openSpecificChat(chatID, window):
         chatHistory.append(temp)
 
 
-def connectUser(entIP, chatID, btnConn, tkMessage):  # adds a user to a specific chat
+def disable(entIP, chatID, btnConn, tkMessage):  # adds a user to a specific chat
     global ip, client
 
     if len(entIP.get()) < 1:
@@ -221,11 +225,15 @@ def connectUser(entIP, chatID, btnConn, tkMessage):  # adds a user to a specific
             title="ERROR!!!", message="You MUST enter the IP address of the person you wish to chat with <e.g. 203.0.113.42>")
     else:
         entIP.config(state=tk.DISABLED)
-        btnConn.config(state=tk.DISABLED)
-        # tkMessage.config(state=tk.NORMAL)
-        content = {"ID": 5, "chatID": chatID, "data": str(entIP.get())}
-        msg = Message(content, "encode")
-        sock.sendto(msg.toString().encode(), server)
+        #btnConn.config(state=tk.DISABLED)
+        tkMessage.config(state=tk.NORMAL)
+        connectUser(chatID, entIP)      
+
+def connectUser (chatID, entIP):
+    content = {"ID": 5, "chatID": chatID, "data": str(entIP.get())}
+    msg = Message(content, "encode")
+    sock.sendto(msg.toString().encode(), server)
+
 
 def exitApp(window):
     window.destroy()
