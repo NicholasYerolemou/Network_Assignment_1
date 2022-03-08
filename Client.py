@@ -10,6 +10,7 @@ import select
 serverName = "127.0.0.1"  # set the servers IP address
 serverPort = 12005  # server port number
 server = (serverName, serverPort)
+chats = []
 
 serverWindow = tk.Tk()
 serverWindow.title("ServerConnect")
@@ -32,7 +33,7 @@ btnConnect = tk.Button(serverWindow, text="CONNECT", bg='WHITE',
 btnConnect.pack(side=tk.LEFT)
 
 
-def connectServer(name):
+def connectServer(name):  # connects the client to the server
     global Name, client
     if len(name) < 1:
         tk.messagebox.showerror(
@@ -71,6 +72,16 @@ def menu():
 
 def newChat():
 
+    temp = {"ID": 2}
+    msg = Message(temp, "encode")
+    # creates a new chat with the server with just the client in
+    sock.sendto(msg.toString().encode(), server)
+    packet, serverName = sock.recvfrom(2048)
+    msg = Message(packet.decode(), "decode")
+    # adds the new chat ID to out list of existing chats
+    chats.append(msg.getChatID())
+    print(msg.getChatID())
+
     newChat = tk.Tk()
     newChat.title("NewChat")
 
@@ -83,9 +94,9 @@ def newChat():
     entIP = tk.Entry(topFrame)
     entIP.pack(side=tk.LEFT)
 
-    btnConnect = tk.Button(topFrame, text="CONNECT", command=lambda: connect(
-        entIP.get(), entIP, btnConnect, tkMessage))
-    btnConnect.pack(side=tk.LEFT)
+    btnAddUser = tk.Button(topFrame, text="CONNECT", command=lambda: connectUser(
+        entIP, chats[-1], btnConnect, tkMessage))
+    btnAddUser.pack(side=tk.LEFT)
 
     btnExit = tk.Button(topFrame, text="EXIT", command=lambda: exitApp())
     btnExit.pack(side=tk.RIGHT)
@@ -208,18 +219,17 @@ def exitApp():
     print("exit")
 
 
-def connect(IP, entIP, btnConn, tkMessage):
+def connectUser(entIP, chatID, btnConn, tkMessage):  # adds a user to a specific chat
     global ip, client
-    if len(IP) < 1:
+
+    if len(entIP.get()) < 1:
         tk.messagebox.showerror(
             title="ERROR!!!", message="You MUST enter the IP address of the person you wish to chat with <e.g. 203.0.113.42>")
     else:
-        ip = IP
-        entIP.config(state=tk.DISABLED)
-        btnConn.config(state=tk.DISABLED)
-        tkMessage.config(state=tk.NORMAL)
-        ips = ip + " " + entIP
-        content = {"ID": 2, "data": ips}
+        # entIP.config(state=tk.DISABLED)
+        # btnConn.config(state=tk.DISABLED)
+        # tkMessage.config(state=tk.NORMAL)
+        content = {"ID": 5, "chatID": chatID, "data": str(entIP.get())}
         msg = Message(content, "encode")
         sock.sendto(msg.toString().encode(), server)
 

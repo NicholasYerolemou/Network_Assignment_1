@@ -68,8 +68,10 @@ def processPacket(msg, client):
     elif(id == 2):
         # make new chat
         # the data contains all the IPs of the clients added to the chat
-        members = msg.getData().split()  # gets IP addresses stored in data
-        size = len(chats)
+        # members = msg.getData().split()  # gets IP addresses stored in data
+        #size = len(chats)
+
+        members = [client[0]]  # adds just the client to the chat
         chatID = 0
         if(len(chats) == 0):  # if no chats currently exist
             chatID = 1
@@ -78,10 +80,8 @@ def processPacket(msg, client):
             chats.update(temp)
         else:
             # get the most recent chat id and add 1 to it
-            # chatID = chats[size-1].getID() + 1
             temp = list(chats.keys())
             chatID = temp[-1] + 1
-            temp = members
             temp = {chatID: Chat(chatID, members)}
             chats.update(temp)
 
@@ -104,7 +104,13 @@ def processPacket(msg, client):
     elif(id == 4):
         print("end chat")
     elif(id == 5):
-        print("add participant")
+        newUser = msg.getData()
+        chatID = msg.getChatID()
+        chat = chats[chatID]  # the chat this user should be added to
+        newUser = newUser.strip()
+        chat.addMember(newUser)
+        print(chats[chatID].getIPs())
+
     elif(id == 6):
         del connected[client[0]]  # removes user from connect dict
     elif(id == 7):

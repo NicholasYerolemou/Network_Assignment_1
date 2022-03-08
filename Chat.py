@@ -34,4 +34,7 @@ class Chat:
     def addMessage(self, ip, data):
         self.chatHistory.append([ip, data])
 
+    def addMember(self, ip):
+        self.members.append(ip)
+
     # def addMessage(self, ipAddress , msg):
