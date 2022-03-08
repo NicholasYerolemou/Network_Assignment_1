@@ -209,7 +209,7 @@ def openChat(window):
     tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7",
                      highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
-    update_chat_list(chatIPS, tkDisplay)
+    update_chat_list(chats, tkDisplay)
 
     bottomFrame = tk.Frame(openChat)
     lblHeading = tk.Label(
@@ -228,7 +228,8 @@ def update_chat_list(names, tkDisplay):
     tkDisplay.delete('1.0', tk.END)
 
     for c in names:
-        tkDisplay.insert(tk.END, c+"\n")
+        display = "ChatID:", c[0], " Members:", c[1], "\n"
+        tkDisplay.insert(tk.END, display)
     tkDisplay.config(state=tk.DISABLED)
 
 
