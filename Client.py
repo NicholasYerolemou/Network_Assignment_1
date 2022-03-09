@@ -132,35 +132,34 @@ def getChatMessage(input, chatID, display, message, window):
     input = input.replace('\n', '')
     texts = tkDisplay.get("1.0", tk.END).strip()
 
-    tkDisplay.config(state=tk.NORMAL)
+    
 
-    tkDisplay.config(state=tk.DISABLED)
-    print(input)
+    tkDisplay.config(state=tk.NORMAL)
+    tkDisplay.delete(1.0,tk.END)
+    tkDisplay.insert(tk.END, "hello")
     tkDisplay.config(state=tk.DISABLED)
 
     tkDisplay.see(tk.END)
     tkMessage.delete('1.0', tk.END)
     
     # this returns the chathistory - print this to the screen
-    print(send_mssage_to_server(input, chatID, window))
-    display = send_mssage_to_server(input, chatID, window)
-    tkDisplay.config(state=tk.NORMAL)
-    tkDisplay.delete('1.0', tk.END)
-    tkDisplay.insert(tk.END, display)
-    tkDisplay.config(state=tk.DISABLED)
+    #tkDisplay.config(state=tk.NORMAL)
+    #tkDisplay.delete('1.0', tk.END)
+    
+    #tkDisplay.config(state=tk.DISABLED)
     #[(' 127.0.0.1', [' hello',"other messages"])]
 
 def send_mssage_to_server(input, chatID, window):
     content = {"ID": 3, "chatID": chatID, "data": input}
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)
-    
-def returnToMain(window):
+
+#def printChat():
+
+def getChatHistory():
     content = {"ID": 7}
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)
-    menu(window)
-
     packet, serverName = sock.recvfrom(2048)
     msg = Message(packet.decode(), "decode")
 
@@ -176,6 +175,8 @@ def returnToMain(window):
         chatHistory.append(temp)
     return chatHistory
 
+def returnToMain(window):
+    menu(window)
 
 def openChat(window):
     window.destroy()
