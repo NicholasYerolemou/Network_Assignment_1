@@ -8,7 +8,7 @@ import select
 
 # 192.42.120.238
 serverName = "196.42.86.183"  # set the servers IP address
-serverPort = 12006  # server port number
+serverPort = 12007  # server port number
 server = (serverName, serverPort)
 chats = []
 
@@ -150,7 +150,7 @@ def getChatMessage(input, chatID, display, message, window):
     chatHistory = send_mssage_to_server(input, chatID, window)
     output = ""
     for i in chatHistory:
-        output = output + "\n\\n" + i[0]  # the IP address
+        output = output + "\n\n" + i[0]  # the IP address
         for word in i[1]:
             output = output + "\n" + word
     print(output)

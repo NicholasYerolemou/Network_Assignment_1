@@ -5,7 +5,7 @@ from collections import OrderedDict
 import select
 import sys
 
-port = 12006
+port = 12007
 host = "127.0.0.1"
 connected = {}
 chats = OrderedDict()
@@ -139,8 +139,7 @@ def processPacket(msg, client):
 with socket(AF_INET, SOCK_DGRAM) as sock:
     sock.bind((host, port))
     print("Server ready to recive ...")
-    run = True
-    while run:
+    while True:
         sock.settimeout(2)
         try:
             packet, clientAddress = sock.recvfrom(2048)
