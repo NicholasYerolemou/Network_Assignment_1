@@ -6,9 +6,10 @@ from Message import Message
 import sys
 import select
 
-# 192.42.120.238
-serverName = "196.42.86.183"  # set the servers IP address
-serverPort = 12007  # server port number
+# 192.42.120.238 Cat
+# 196.42.86.183 Collins
+serverName = "127.0.0.1"  # set the servers IP address
+serverPort = 12008  # server port number
 server = (serverName, serverPort)
 chats = []
 
@@ -193,7 +194,6 @@ def openChat(window):
     temp = data.split()
     chatID = 0
     # 2d array holds chat id and ips in format [('1', ['123', '1234', '234']), ('2', ['1234', '1234', '231412'])]
-    chats = []
     for t in temp:
         parts = t.split(":")
         chatID = parts[0]  # gets the stuff on the left side of the colon
@@ -202,9 +202,11 @@ def openChat(window):
         chats.append(temp)
     displayFrame = tk.Frame(openChat)
 
-    btnBack = tk.Button(displayFrame, text="RETURN",
-                        command=lambda: returnToMain(openChat))
+    btnBack = tk.Button(displayFrame, text="RETURN", command=lambda: returnToMain(openChat))
     btnBack.pack(side=tk.TOP)
+    #btnRefresh = tk.Button(displayFrame, text="REFRESH", command=lambda: refresh())
+    #btnRefresh.pack(side=tk.TOP)
+
     lblLine = tk.Label(
         displayFrame, text="Chat list:\n*********************************************************************").pack()
     scrollBar = tk.Scrollbar(displayFrame)
@@ -225,12 +227,17 @@ def openChat(window):
     chatNum.pack(side=tk.LEFT)
 
     btnOpen = tk.Button(bottomFrame, text="OPEN CHAT",
-                        command=lambda: openSpecificChat(chatID, openChat))
+                        command=lambda: checkChatNum(chatNum.get(), openChat))
 
     btnOpen.pack(side=tk.RIGHT)
     bottomFrame.pack(side=tk.TOP)
 
-
+def checkChatNum(chatID, window):
+    if chatID in chats:
+        openSpecificChat(chatID, window)
+    else:
+        tk.messagebox.showerror(title="ERROR!!!", message="Please enter a valid chat ID <e.g. 1>")
+        
 def update_chat_list(names, tkDisplay):
     tkDisplay.config(state=tk.NORMAL)
     tkDisplay.delete('1.0', tk.END)
@@ -398,10 +405,8 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
         print("connecting...")
     print("connected")
     serverWindow.mainloop()
-    sock.close()
     # we have succesfully connected to the server
 
-"""
     while True:
         while True:
             # print("checking for recieved messages")
@@ -420,4 +425,5 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
         if(i):
             input = sys.stdin.readline()
             processInput(input)
-"""
+
+    sock.close()

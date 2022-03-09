@@ -26,9 +26,7 @@ def getConnectedClients(IPs):
         if ip in connected:
             temp2 = (ip, connected[ip])
             temp.append(temp2)
-
     return temp
-
 """
 
 
