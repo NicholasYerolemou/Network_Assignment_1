@@ -381,8 +381,10 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
         print("connecting...")
     print("connected")
     serverWindow.mainloop()
+    sock.close()
     # we have succesfully connected to the server
 
+"""
     while True:
         while True:
             # print("checking for recieved messages")
@@ -401,5 +403,4 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
         if(i):
             input = sys.stdin.readline()
             processInput(input)
-
-    sock.close()
+"""
