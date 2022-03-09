@@ -6,7 +6,7 @@ import select
 import sys
 
 port = 12007
-host = "127.0.0.1"
+host = "196.42.86.183"
 connected = {}
 chats = OrderedDict()
 
