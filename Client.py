@@ -338,18 +338,35 @@ def disable(entIP, chatID, tkMessage, tkDisplay):  # adds a user to a specific c
         tkMessage.config(state=tk.NORMAL)
         connectUser(chatID, entIP, tkDisplay)
 
+#Try catch for valid IP
+        # the entered IP
+
+def is_valid_IP(address):
+    parts = address.split(".")
+    if len(parts) != 4:
+        return False
+    for item in parts:
+        if int(item)< 0 or int(item) > 255:
+            return False
+    return True
 
 def connectUser(chatID, entIP, tkDisplay):
-    content = {"ID": 5, "chatID": chatID, "data": str(entIP.get())}
-    msg = Message(content, "encode")
-    sock.sendto(msg.toString().encode(), server)
-    entIP.config(state=tk.NORMAL)
-    output = "\n" + entIP.get() + " has been added.\n"
-    entIP.delete(0, tk.END)
-    tkDisplay.config(state=tk.NORMAL)
-    tkDisplay.insert(tk.END, str(output))
-    tkDisplay.config(state=tk.DISABLED)
-
+        strEntIp = str(entIP.get())
+        if is_valid_IP(strEntIp):
+            content = {"ID": 5, "chatID": chatID, "data": str(entIP.get())}#entIP.get
+            msg = Message(content, "encode")
+            sock.sendto(msg.toString().encode(), server)
+            entIP.config(state=tk.NORMAL)
+            output = "\n" + entIP.get() + " has been added.\n"
+            entIP.delete(0, tk.END)
+            tkDisplay.config(state=tk.NORMAL)
+            tkDisplay.insert(tk.END, str(output))
+            tkDisplay.config(state=tk.DISABLED)
+        else:
+            print ("Invalid IP")
+            entIP.delete(0, tk.END)
+            tkDisplay.config(state=tk.NORMAL) 
+            tkDisplay.config(state=tk.DISABLED)
 
 def exitApp(window):
     window.destroy()
@@ -365,7 +382,7 @@ def connectToServer():
         message = Message(packet.decode(), "decode")
         if(message.getID() == 1):
             return True
-    except:  # connection attemp timed out
+    except:  # connection attempt timed out
         return False
 
     return False
