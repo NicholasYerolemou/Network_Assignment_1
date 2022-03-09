@@ -6,9 +6,9 @@ from Message import Message
 import sys
 import select
 
-
-serverName = "127.0.0.1"  # set the servers IP address
-serverPort = 12005  # server port number
+# 192.42.120.238
+serverName = "196.42.86.183"  # set the servers IP address
+serverPort = 12006  # server port number
 server = (serverName, serverPort)
 chats = []
 
@@ -150,7 +150,7 @@ def getChatMessage(input, chatID, display, message, window):
     chatHistory = send_mssage_to_server(input, chatID, window)
     output = ""
     for i in chatHistory:
-        output = i[0]  # the IP address
+        output = output + "\n\\n" + i[0]  # the IP address
         for word in i[1]:
             output = output + "\n" + word
     print(output)
@@ -201,7 +201,7 @@ def openChat(window):
         temp = (chatID, chatIPS)
         chats.append(temp)
     displayFrame = tk.Frame(openChat)
-   
+
     btnBack = tk.Button(displayFrame, text="RETURN",
                         command=lambda: returnToMain(openChat))
     btnBack.pack(side=tk.TOP)
@@ -292,17 +292,17 @@ def openSpecificChat(chatID, window):
     print(chatID)
     content = {"ID": 9, "chatID": chatID}
     msg = Message(content, "encode")
-    sock.sendto(msg.toString().encode(),server)  # requests chat history
+    sock.sendto(msg.toString().encode(), server)  # requests chat history
 
     packet, serverName = sock.recvfrom(2048)
     msg = Message(packet.decode(), "decode")
 
     # print this to the screen
-    
+
     chatHistory = getChatHistory(msg)
     output = ""
     for i in chatHistory:
-        output = i[0]  # the IP address
+        output = output + "\n\n" + i[0]  # the IP address
         for word in i[1]:
             output = output + "\n" + word
     print(output)
@@ -311,8 +311,6 @@ def openSpecificChat(chatID, window):
     tkDisplay.delete(1.0, tk.END)
     tkDisplay.insert(tk.END, str(output))
     tkDisplay.config(state=tk.DISABLED)
-
-    
 
 
 def getChatHistory(msg):
@@ -353,7 +351,6 @@ def connectUser(chatID, entIP, tkDisplay):
     tkDisplay.config(state=tk.DISABLED)
 
 
-
 def exitApp(window):
     window.destroy()
     exit(0)
@@ -375,12 +372,13 @@ def connectToServer():
 
 
 with socket(AF_INET, SOCK_DGRAM) as sock:
-    sock.settimeout(0.1)
+    sock.settimeout(1)
 
     connected = False
 
     while(not connected):  # connect to server
         connected = connectToServer()
+        print("connecting...")
     print("connected")
     serverWindow.mainloop()
     # we have succesfully connected to the server
