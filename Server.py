@@ -7,7 +7,7 @@ import sys
 
 port = 12007
 host = "192.168.0.177"  # "102.39.144.36"
-connected = {}
+clients = []
 chats = OrderedDict()
 
 
@@ -37,22 +37,9 @@ def processPacket(msg, client):
         reply = {"ID": 1}
         msg = Message(reply, "encode")
         # add the client to list of connected clients
-        if client[0] in connected:
-            # there is onlt 1 client with this IP connected
-            if(isinstance(connected[client[0]], int)):
-                temp = [connected[client[0]], client[1]]
-                connected[client[0]] = temp
-                sock.sendto(msg.toString().encode(), client)
-            else:
-                print("unable to connect 3 clients with the same IP address")
-                reply = {"ID": 0}
-                msg = Message(reply, "encode")
-                sock.sendto(msg.toString().encode(), client)
-
-        else:
-            temp = {client[0]: client[1]}
-            connected.update(temp)
-            sock.sendto(msg.toString().encode(), client)
+        if client[0] not in clients:  # if ip address not in clients
+            clients.append(client[0])
+        sock.sendto(msg.toString().encode(), client)
 
     elif(id == 1):
         print("code is 1")
@@ -73,9 +60,10 @@ def processPacket(msg, client):
             # get the most recent chat id and add 1 to it
             temp = list(chats.keys())
             chatID = temp[-1] + 1
-            temp = {chatID: Chat(chatID, members)}
+            c = Chat(chatID, members)
+            temp = {chatID: c}
             chats.update(temp)
-
+            chats[chatID].clearChatHistory()
         # send a message to all connected clients they have been added to a chat
         reply = {"ID": 2, "chatID": chatID}
         msg = Message(reply, "encode")
@@ -106,7 +94,6 @@ def processPacket(msg, client):
     elif(id == 7):
         print("leave chat")
     elif(id == 8):  # returns list of chats this client is in in format chatID:member IP 1, member IP 2
-        print(chats[1].getIPs())
         data = ""
         for key in chats.keys():  # loop through each key in the chats dict
             temp = chats[key]
