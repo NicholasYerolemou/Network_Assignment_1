@@ -120,7 +120,7 @@ def newChat(window):
     bottomFrame = tk.Frame(newChat)
     tkMessage = tk.Text(bottomFrame, height=2, width=55)
     tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
-    tkMessage.config(highlightbackground="grey", state="disabled")
+    tkMessage.config(highlightbackground="grey", state=tk.NORMAL)
     chatHistory = []
     tkMessage.bind("<Return>", (lambda event: getChatMessage(
         tkMessage.get("1.0", tk.END), chats[-1], tkDisplay, tkMessage, newChat)))
@@ -201,8 +201,10 @@ def openChat(window):
         temp = (chatID, chatIPS)
         chats.append(temp)
     displayFrame = tk.Frame(openChat)
-   # btnExit = tk.Button(displayFrame, text="EXIT", command=lambda: exitApp(openChat))
-   # btnExit.pack(side=tk.LEFT)
+   
+    btnBack = tk.Button(displayFrame, text="RETURN",
+                        command=lambda: returnToMain(openChat))
+    btnBack.pack(side=tk.TOP)
     lblLine = tk.Label(
         displayFrame, text="Chat list:\n*********************************************************************").pack()
     scrollBar = tk.Scrollbar(displayFrame)
@@ -225,8 +227,6 @@ def openChat(window):
     btnOpen = tk.Button(bottomFrame, text="OPEN CHAT",
                         command=lambda: openSpecificChat(chatID, openChat))
 
-    btnOpen = tk.Button(bottomFrame, text="OPEN CHAT",
-                        command=lambda: openSpecificChat(chatNum.get(), openChat))
     btnOpen.pack(side=tk.RIGHT)
     bottomFrame.pack(side=tk.TOP)
 
@@ -253,7 +253,7 @@ def openSpecificChat(chatID, window):
     topFrame.pack(side=tk.TOP)
 
     btnBack = tk.Button(topFrame, text="RETURN",
-                        command=lambda: returnToMain(exChat))
+                        command=lambda: openChat(exChat))
     btnBack.pack(side=tk.LEFT)
 
     lblIP = tk.Label(topFrame, text="Their IP:").pack(side=tk.LEFT)
@@ -268,7 +268,7 @@ def openSpecificChat(chatID, window):
                         command=lambda: exitApp(exChat))
     btnExit.pack(side=tk.RIGHT)
 
-    displayFrame = tk.Frame(newChat)
+    displayFrame = tk.Frame(exChat)
     lblLine = tk.Label(
         displayFrame, text="*********************************************************************").pack()
     scrollBar = tk.Scrollbar(displayFrame)
@@ -284,20 +284,35 @@ def openSpecificChat(chatID, window):
     bottomFrame = tk.Frame(exChat)
     tkMessage = tk.Text(bottomFrame, height=2, width=55)
     tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
-    tkMessage.config(highlightbackground="grey", state="disabled")
+    tkMessage.config(highlightbackground="grey", state=tk.NORMAL)
     tkMessage.bind("<Return>", (lambda event: getChatMessage(
-        tkMessage.get("1.0", tk.END), tkDisplay, tkMessage, exChat)))
+        tkMessage.get("1.0", tk.END), chatID, tkDisplay, tkMessage, exChat)))
     bottomFrame.pack(side=tk.BOTTOM)
 
+    print(chatID)
     content = {"ID": 9, "chatID": chatID}
     msg = Message(content, "encode")
-    sock.sendto(msg.encode(), server)  # requests chat history
+    sock.sendto(msg.toString().encode(),server)  # requests chat history
 
-    pakcet, serverName = sock.recvfrom(2048)
-    msg = Message(packet, "decode")
+    packet, serverName = sock.recvfrom(2048)
+    msg = Message(packet.decode(), "decode")
 
     # print this to the screen
+    
     chatHistory = getChatHistory(msg)
+    output = ""
+    for i in chatHistory:
+        output = i[0]  # the IP address
+        for word in i[1]:
+            output = output + "\n" + word
+    print(output)
+
+    tkDisplay.config(state=tk.NORMAL)
+    tkDisplay.delete(1.0, tk.END)
+    tkDisplay.insert(tk.END, str(output))
+    tkDisplay.config(state=tk.DISABLED)
+
+    
 
 
 def getChatHistory(msg):
@@ -331,7 +346,7 @@ def connectUser(chatID, entIP, tkDisplay):
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)
     entIP.config(state=tk.NORMAL)
-    output = entIP.get() + " has been added.\n"
+    output = "\n" + entIP.get() + " has been added.\n"
     entIP.delete(0, tk.END)
     tkDisplay.config(state=tk.NORMAL)
     tkDisplay.insert(tk.END, str(output))
