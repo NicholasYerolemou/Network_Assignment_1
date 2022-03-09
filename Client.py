@@ -8,7 +8,7 @@ import select
 
 # 192.42.120.238 Cat
 # 196.42.86.183 Collins
-serverName = "127.0.0.1"  # set the servers IP address
+serverName = "196.42.86.183"  # set the servers IP address
 serverPort = 12008  # server port number
 server = (serverName, serverPort)
 chats = []
@@ -80,6 +80,7 @@ def newChat(window):
     msg = Message(packet.decode(), "decode")
     # adds the new chat ID to out list of existing chats
     chats.append(msg.getChatID())
+    print(chats)
 
     newChat = tk.Tk()
     newChat.title("NewChat")
@@ -97,6 +98,7 @@ def newChat(window):
     entIP = tk.Entry(topFrame)
     entIP.pack(side=tk.LEFT)
 
+    # calls method to add user to chat
     btnAddUser = tk.Button(topFrame, text="ADD PARTICIPANT", command=lambda: disable(
         entIP, chats[-1], tkMessage, tkDisplay))
     btnAddUser.pack(side=tk.LEFT)
@@ -179,11 +181,13 @@ def returnToMain(window):
 
 
 def openChat(window):
+    # opens existing chats
     window.destroy()
     openChat = tk.Tk()
     openChat.title("OpenChat")
 
     openChat.geometry("500x500")
+    # returns list of chats this client is in in format chatID:member IP 1, member IP 2
     content = {"ID": 8}
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)
@@ -198,14 +202,19 @@ def openChat(window):
         parts = t.split(":")
         chatID = parts[0]  # gets the stuff on the left side of the colon
         chatIPS = parts[1].split(",")
-        temp = (chatID, chatIPS)
-        chats.append(temp)
+        # adds the chatID and members to the chat array
+        temp2 = (chatID, chatIPS)
+        chats.append(temp2)
+
+    print(chats)  # should contain all the chats the client is a part of
+
     displayFrame = tk.Frame(openChat)
 
-    btnBack = tk.Button(displayFrame, text="RETURN", command=lambda: returnToMain(openChat))
+    btnBack = tk.Button(displayFrame, text="RETURN",
+                        command=lambda: returnToMain(openChat))
     btnBack.pack(side=tk.TOP)
     #btnRefresh = tk.Button(displayFrame, text="REFRESH", command=lambda: refresh())
-    #btnRefresh.pack(side=tk.TOP)
+    # btnRefresh.pack(side=tk.TOP)
 
     lblLine = tk.Label(
         displayFrame, text="Chat list:\n*********************************************************************").pack()
@@ -232,12 +241,15 @@ def openChat(window):
     btnOpen.pack(side=tk.RIGHT)
     bottomFrame.pack(side=tk.TOP)
 
+
 def checkChatNum(chatID, window):
     if chatID in chats:
         openSpecificChat(chatID, window)
     else:
-        tk.messagebox.showerror(title="ERROR!!!", message="Please enter a valid chat ID <e.g. 1>")
-        
+        tk.messagebox.showerror(
+            title="ERROR!!!", message="Please enter a valid chat ID <e.g. 1>")
+
+
 def update_chat_list(names, tkDisplay):
     tkDisplay.config(state=tk.NORMAL)
     tkDisplay.delete('1.0', tk.END)
@@ -345,35 +357,40 @@ def disable(entIP, chatID, tkMessage, tkDisplay):  # adds a user to a specific c
         tkMessage.config(state=tk.NORMAL)
         connectUser(chatID, entIP, tkDisplay)
 
-#Try catch for valid IP
+# Try catch for valid IP
         # the entered IP
+
 
 def is_valid_IP(address):
     parts = address.split(".")
     if len(parts) != 4:
         return False
     for item in parts:
-        if int(item)< 0 or int(item) > 255:
+        if int(item) < 0 or int(item) > 255:
             return False
     return True
 
-def connectUser(chatID, entIP, tkDisplay):
-        strEntIp = str(entIP.get())
-        if is_valid_IP(strEntIp):
-            content = {"ID": 5, "chatID": chatID, "data": str(entIP.get())}#entIP.get
-            msg = Message(content, "encode")
-            sock.sendto(msg.toString().encode(), server)
-            entIP.config(state=tk.NORMAL)
-            output = "\n" + entIP.get() + " has been added.\n"
-            entIP.delete(0, tk.END)
-            tkDisplay.config(state=tk.NORMAL)
-            tkDisplay.insert(tk.END, str(output))
-            tkDisplay.config(state=tk.DISABLED)
-        else:
-            print ("Invalid IP")
-            entIP.delete(0, tk.END)
-            tkDisplay.config(state=tk.NORMAL) 
-            tkDisplay.config(state=tk.DISABLED)
+
+def connectUser(chatID, entIP, tkDisplay):  # sends message to server to add client to chat
+    strEntIp = str(entIP.get())
+    if is_valid_IP(strEntIp):
+        print("is a valid IP")
+        content = {"ID": 5, "chatID": chatID,
+                   "data": str(entIP.get())}  # entIP.get
+        msg = Message(content, "encode")
+        sock.sendto(msg.toString().encode(), server)
+        entIP.config(state=tk.NORMAL)
+        output = "\n" + entIP.get() + " has been added.\n"
+        entIP.delete(0, tk.END)
+        tkDisplay.config(state=tk.NORMAL)
+        tkDisplay.insert(tk.END, str(output))
+        tkDisplay.config(state=tk.DISABLED)
+    else:
+        print("Invalid IP")
+        entIP.delete(0, tk.END)
+        tkDisplay.config(state=tk.NORMAL)
+        tkDisplay.config(state=tk.DISABLED)
+
 
 def exitApp(window):
     window.destroy()
