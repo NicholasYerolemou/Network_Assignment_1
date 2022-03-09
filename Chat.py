@@ -12,6 +12,7 @@ class Chat:
         self.members = IPs
 
     def getChatHistory(self):
+        print(self.chatHistory)
         output = ""
         prevIP = ""
         counter = 1

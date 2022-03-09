@@ -8,8 +8,9 @@ import select
 
 # 192.42.120.238 Cat
 # 196.42.86.183 Collins
-serverName = "196.42.86.183"  # set the servers IP address
-serverPort = 12008  # server port number
+# 102.39.144.36 nick
+serverName = "192.168.0.177"  # set the servers IP address
+serverPort = 12007  # server port number
 server = (serverName, serverPort)
 chats = []
 
@@ -80,7 +81,6 @@ def newChat(window):
     msg = Message(packet.decode(), "decode")
     # adds the new chat ID to out list of existing chats
     chats.append(msg.getChatID())
-    print(chats)
 
     newChat = tk.Tk()
     newChat.title("NewChat")
@@ -124,7 +124,6 @@ def newChat(window):
     tkMessage = tk.Text(bottomFrame, height=2, width=55)
     tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
     tkMessage.config(highlightbackground="grey", state=tk.NORMAL)
-    chatHistory = []
     tkMessage.bind("<Return>", (lambda event: getChatMessage(
         tkMessage.get("1.0", tk.END), chats[-1], tkDisplay, tkMessage, newChat)))
     bottomFrame.pack(side=tk.BOTTOM)
@@ -156,7 +155,6 @@ def getChatMessage(input, chatID, display, message, window):
         output = output + "\n\n" + i[0]  # the IP address
         for word in i[1]:
             output = output + "\n" + word
-    print(output)
 
     tkDisplay.config(state=tk.NORMAL)
     tkDisplay.delete(1.0, tk.END)
@@ -178,8 +176,9 @@ def send_mssage_to_server(input, chatID, window):
 
 def returnToMain(window):
     menu(window)
-
-
+###################################
+def updateChatList(self,c):
+    self.chats = c
 def openChat(window):
     # opens existing chats
     window.destroy()
@@ -192,21 +191,25 @@ def openChat(window):
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)
 
+    sock.settimeout(10)
     packet, serverName = sock.recvfrom(2048)
     msg = Message(packet.decode(), "decode")
     data = msg.getData()
     temp = data.split()
     chatID = 0
+    chatList = []
+    chats = []
     # 2d array holds chat id and ips in format [('1', ['123', '1234', '234']), ('2', ['1234', '1234', '231412'])]
     for t in temp:
         parts = t.split(":")
         chatID = parts[0]  # gets the stuff on the left side of the colon
+        chats.append(parts[0])
         chatIPS = parts[1].split(",")
         # adds the chatID and members to the chat array
         temp2 = (chatID, chatIPS)
-        chats.append(temp2)
-
-    print(chats)  # should contain all the chats the client is a part of
+        chatList.append(temp2)
+    print("the chat list is now line 210",chats)
+    # should contain all the chats the client is a part of
 
     displayFrame = tk.Frame(openChat)
 
@@ -227,7 +230,7 @@ def openChat(window):
                      highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
 
-    update_chat_list(chats, tkDisplay)
+    update_chat_list(chatList, tkDisplay)
 
     bottomFrame = tk.Frame(openChat)
     lblHeading = tk.Label(
@@ -236,14 +239,15 @@ def openChat(window):
     chatNum.pack(side=tk.LEFT)
 
     btnOpen = tk.Button(bottomFrame, text="OPEN CHAT",
-                        command=lambda: checkChatNum(chatNum.get(), openChat))
+                        command=lambda: checkChatNum(chatNum.get(), openChat,chats))
 
     btnOpen.pack(side=tk.RIGHT)
     bottomFrame.pack(side=tk.TOP)
 
 
-def checkChatNum(chatID, window):
-    if chatID in chats:
+def checkChatNum(chatID, window,chats):
+    print(chats)
+    if str(chatID) in chats:
         openSpecificChat(chatID, window)
     else:
         tk.messagebox.showerror(
@@ -308,7 +312,6 @@ def openSpecificChat(chatID, window):
         tkMessage.get("1.0", tk.END), chatID, tkDisplay, tkMessage, exChat)))
     bottomFrame.pack(side=tk.BOTTOM)
 
-    print(chatID)
     content = {"ID": 9, "chatID": chatID}
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)  # requests chat history
@@ -320,11 +323,11 @@ def openSpecificChat(chatID, window):
 
     chatHistory = getChatHistory(msg)
     output = ""
-    for i in chatHistory:
-        output = output + "\n\n" + i[0]  # the IP address
-        for word in i[1]:
-            output = output + "\n" + word
-    print(output)
+    if(chatHistory != []):
+        for i in chatHistory:
+            output = output + "\n\n" + i[0]  # the IP address
+            for word in i[1]:
+                output = output + "\n" + word
 
     tkDisplay.config(state=tk.NORMAL)
     tkDisplay.delete(1.0, tk.END)
@@ -335,14 +338,15 @@ def openSpecificChat(chatID, window):
 def getChatHistory(msg):
     chatHistory = []
     # data in format [('127.0.0', ['hello', 'how are you', ' sttsfd']), ('123232.123', ['afadsfa', 'asdfasf', 'adfas'])
-    items = msg.getData().split("_")
+    if(msg.getData()):
+        items = msg.getData().split("_")
 
-    for item in items:
-        parts = item.split(":")
-        ip = parts[0]
-        messages = parts[1].split(",")
-        temp = (ip, messages)
-        chatHistory.append(temp)
+        for item in items:
+            parts = item.split(":")
+            ip = parts[0]
+            messages = parts[1].split(",")
+            temp = (ip, messages)
+            chatHistory.append(temp)
     return chatHistory
 
 
@@ -374,7 +378,6 @@ def is_valid_IP(address):
 def connectUser(chatID, entIP, tkDisplay):  # sends message to server to add client to chat
     strEntIp = str(entIP.get())
     if is_valid_IP(strEntIp):
-        print("is a valid IP")
         content = {"ID": 5, "chatID": chatID,
                    "data": str(entIP.get())}  # entIP.get
         msg = Message(content, "encode")

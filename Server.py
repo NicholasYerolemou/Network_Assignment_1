@@ -6,7 +6,7 @@ import select
 import sys
 
 port = 12007
-host = "196.42.86.183"
+host = "192.168.0.177"  # "102.39.144.36"
 connected = {}
 chats = OrderedDict()
 
@@ -88,7 +88,6 @@ def processPacket(msg, client):
 
         # send back the new chat history
         data = chats[msg.getChatID()].getChatHistory()
-        print(data)
         reply = {"ID": 9, "data": data}
         msg = Message(reply, "encode")
         sock.sendto(msg.toString().encode(), client)
@@ -106,7 +105,8 @@ def processPacket(msg, client):
         del connected[client[0]]  # removes user from connect dict
     elif(id == 7):
         print("leave chat")
-    elif(id == 8):
+    elif(id == 8):  # returns list of chats this client is in in format chatID:member IP 1, member IP 2
+        print(chats[1].getIPs())
         data = ""
         for key in chats.keys():  # loop through each key in the chats dict
             temp = chats[key]
@@ -121,6 +121,7 @@ def processPacket(msg, client):
                 # add chatID: to the front of that list
                 temp = str(key) + ":" + temp
                 data = data + temp + " "
+
         reply = {"ID": 8, "data": data}
         msg = Message(reply, "encode")
         sock.sendto(msg.toString().encode(), client)
