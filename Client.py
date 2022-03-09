@@ -97,7 +97,7 @@ def newChat(window):
     entIP.pack(side=tk.LEFT)
 
     btnAddUser = tk.Button(topFrame, text="ADD PARTICIPANT", command=lambda: disable(
-        entIP, chats[-1], btnConnect, tkMessage))
+        entIP, chats[-1], tkMessage, tkDisplay))
     btnAddUser.pack(side=tk.LEFT)
 
     btnExit = tk.Button(topFrame, text="EXIT",
@@ -218,7 +218,7 @@ def openChat(window):
 
     bottomFrame = tk.Frame(openChat)
     lblHeading = tk.Label(
-        bottomFrame, text="Type the number of the chat you'd like to open:").pack(side=tk.LEFT)
+        bottomFrame, text="Type the number of the chat you'd like to open:").pack(side=tk.TOP)
     chatNum = tk.Entry(bottomFrame)
     chatNum.pack(side=tk.LEFT)
 
@@ -244,16 +244,16 @@ def update_chat_list(names, tkDisplay):
 def openSpecificChat(chatID, window):
     window.destroy()
 
-    newChat = tk.Tk()
-    newChat.title("NewChat")
+    exChat = tk.Tk()
+    exChat.title("ExChat")
 
-    newChat.geometry("500x500")
+    exChat.geometry("500x500")
 
-    topFrame = tk.Frame(newChat)
+    topFrame = tk.Frame(exChat)
     topFrame.pack(side=tk.TOP)
 
     btnBack = tk.Button(topFrame, text="RETURN",
-                        command=lambda: returnToMain(newChat))
+                        command=lambda: returnToMain(exChat))
     btnBack.pack(side=tk.LEFT)
 
     lblIP = tk.Label(topFrame, text="Their IP:").pack(side=tk.LEFT)
@@ -265,7 +265,7 @@ def openSpecificChat(chatID, window):
     btnAddUser.pack(side=tk.LEFT)
 
     btnExit = tk.Button(topFrame, text="EXIT",
-                        command=lambda: exitApp(newChat))
+                        command=lambda: exitApp(exChat))
     btnExit.pack(side=tk.RIGHT)
 
     displayFrame = tk.Frame(newChat)
@@ -281,12 +281,12 @@ def openSpecificChat(chatID, window):
                      highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
 
-    bottomFrame = tk.Frame(newChat)
+    bottomFrame = tk.Frame(exChat)
     tkMessage = tk.Text(bottomFrame, height=2, width=55)
     tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
     tkMessage.config(highlightbackground="grey", state="disabled")
     tkMessage.bind("<Return>", (lambda event: getChatMessage(
-        tkMessage.get("1.0", tk.END), tkDisplay, tkMessage, newChat)))
+        tkMessage.get("1.0", tk.END), tkDisplay, tkMessage, exChat)))
     bottomFrame.pack(side=tk.BOTTOM)
 
     content = {"ID": 9, "chatID": chatID}
@@ -314,7 +314,7 @@ def getChatHistory(msg):
     return chatHistory
 
 
-def disable(entIP, chatID, btnConn, tkMessage):  # adds a user to a specific chat
+def disable(entIP, chatID, tkMessage, tkDisplay):  # adds a user to a specific chat
     global ip, client
 
     if len(entIP.get()) < 1:
@@ -323,15 +323,20 @@ def disable(entIP, chatID, btnConn, tkMessage):  # adds a user to a specific cha
     else:
         entIP.config(state=tk.DISABLED)
         tkMessage.config(state=tk.NORMAL)
-        connectUser(chatID, entIP)
+        connectUser(chatID, entIP, tkDisplay)
 
 
-def connectUser(chatID, entIP):
+def connectUser(chatID, entIP, tkDisplay):
     content = {"ID": 5, "chatID": chatID, "data": str(entIP.get())}
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)
-
     entIP.config(state=tk.NORMAL)
+    output = entIP.get() + " has been added.\n"
+    entIP.delete(0, tk.END)
+    tkDisplay.config(state=tk.NORMAL)
+    tkDisplay.insert(tk.END, str(output))
+    tkDisplay.config(state=tk.DISABLED)
+
 
 
 def exitApp(window):
