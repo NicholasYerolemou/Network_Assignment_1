@@ -2,6 +2,8 @@ from socket import *
 from Message import Message
 from Chat import *
 from collections import OrderedDict
+import select
+import sys
 
 port = 12005
 host = "127.0.0.1"
@@ -9,26 +11,15 @@ connected = {}
 chats = OrderedDict()
 
 
+"""
 def isConnected(IP):
     if(IP in connected):
         return True
     else:
         return False
-
-
-"""
-def notifyChatMembers(chat):
-    members = chat.get
-    for mem in members:
-        if(isConnected(mem)):
-            target = (mem, connected[mem])
-            data = str("You have been added to chat number:",
-            content = {"ID": 3, "IP": "127.0.0.1", "pin": 0, "data":}
-            msg=Message()
-            sock.sendto(msg.toString().encode(), target)
 """
 
-
+"""
 def getConnectedClients(IPs):
     temp = []
     for ip in IPs:
@@ -37,6 +28,8 @@ def getConnectedClients(IPs):
             temp.append(temp2)
 
     return temp
+
+"""
 
 
 def processPacket(msg, client):
@@ -146,9 +139,22 @@ def processPacket(msg, client):
 with socket(AF_INET, SOCK_DGRAM) as sock:
     sock.bind((host, port))
     print("Server ready to recive ...")
-    while True:
-        packet, clientAddress = sock.recvfrom(2048)
-        # creates a message object with the data
-        message = Message(packet.decode(), "decode")
-        # print(message.toString())
-        processPacket(message, clientAddress)
+    run = True
+    while run:
+        print("still running")
+        print(run)
+        sock.settimeout(2)
+        try:
+            packet, clientAddress = sock.recvfrom(2048)
+            message = Message(packet.decode(), "decode")
+            processPacket(message, clientAddress)
+        except:
+            pass
+            # creates a message object with the data
+
+            # print(message.toString())
+        i, o, e = select.select([sys.stdin], [], [], 0.1)
+        if(i):
+            #input = sys.stdin.readline()
+            break
+    sock.close()
