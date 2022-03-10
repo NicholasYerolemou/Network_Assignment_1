@@ -3,8 +3,7 @@ import tkinter as tk
 from tkinter import messagebox
 import threading
 from Message import Message
-import sys
-import select
+import time
 
 # 192.42.120.238 Cat
 # 196.42.86.183 Collins
@@ -72,6 +71,7 @@ def menu(window):
 
 
 def newChat(window):
+    # opnes the new chat window that allows clients to create a new chat, add members and send messages to that chat
     window.destroy()
     temp = {"ID": 2}
     msg = Message(temp, "encode")
@@ -130,6 +130,7 @@ def newChat(window):
 
 
 def getChatMessage(input, chatID, display, message, window):
+    # get the message the user has tyoed into the new chat
     tkDisplay = display
     tkMessage = message
     input = input.replace('\n', '')
@@ -152,9 +153,10 @@ def getChatMessage(input, chatID, display, message, window):
     chatHistory = send_mssage_to_server(input, chatID, window)
     output = ""
     for i in chatHistory:
-        output = output + "\n\n" + i[0]  # the IP address
+        output = output + i[0]  # the IP address
         for word in i[1]:
             output = output + "\n" + word
+        output = output + "\n\n"
 
     tkDisplay.config(state=tk.NORMAL)
     tkDisplay.delete(1.0, tk.END)
@@ -179,7 +181,7 @@ def returnToMain(window):
 
 
 def openChat(window):
-    # opens existing chats
+    # view existing chats
     window.destroy()
     openChat = tk.Tk()
     openChat.title("OpenChat")
@@ -190,25 +192,30 @@ def openChat(window):
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)
 
-    sock.settimeout(10)
     packet, serverName = sock.recvfrom(2048)
     msg = Message(packet.decode(), "decode")
     data = msg.getData()
     temp = data.split()
-    chatID = 0
-    chatList = []
     chats = []
+    output = ""
     # 2d array holds chat id and ips in format [('1', ['123', '1234', '234']), ('2', ['1234', '1234', '231412'])]
     for t in temp:
         parts = t.split(":")
-        chatID = parts[0]  # gets the stuff on the left side of the colon
+        output = output + "Chat:" + parts[0] + "   Members:"  # add chatID
+        # adds the chatID of every chat this client is in to the local list of chatIDs
         chats.append(parts[0])
-        chatIPS = parts[1].split(",")
-        # adds the chatID and members to the chat array
-        temp2 = (chatID, chatIPS)
-        chatList.append(temp2)
-    # should contain all the chats the client is a part of
 
+        temp = parts[1].split(",")
+        output = output + temp[0]  # adds the first ip address
+        members = ""
+        for mem in temp[1:]:  # adds IP addresses
+            members = mem + ", " + mem
+            if(members != ""):
+                output = output + ", " + members + "\n"  # adds the ips and chatID together
+            else:
+                output = output + " " + members + "\n"  # adds the ips and chatID together
+
+    # should contain all the chats the client is a part of
     displayFrame = tk.Frame(openChat)
 
     btnBack = tk.Button(displayFrame, text="RETURN",
@@ -228,7 +235,7 @@ def openChat(window):
                      highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
 
-    update_chat_list(chatList, tkDisplay)
+    update_chat_list(output, tkDisplay)
 
     bottomFrame = tk.Frame(openChat)
     lblHeading = tk.Label(
@@ -251,13 +258,10 @@ def checkChatNum(chatID, window, chats):
             title="ERROR!!!", message="Please enter a valid chat ID <e.g. 1>")
 
 
-def update_chat_list(names, tkDisplay):
+def update_chat_list(display, tkDisplay):
     tkDisplay.config(state=tk.NORMAL)
     tkDisplay.delete('1.0', tk.END)
-
-    for c in names:
-        display = "ChatID:", c[0], " Members:", c[1], "\n"
-        tkDisplay.insert(tk.END, display)
+    tkDisplay.insert(tk.END, display)
     tkDisplay.config(state=tk.DISABLED)
 
 
@@ -322,10 +326,10 @@ def openSpecificChat(chatID, window):
     output = ""
     if(chatHistory != []):
         for i in chatHistory:
-            output = output + "\n\n" + i[0]  # the IP address
+            output = output + i[0]  # the IP address
             for word in i[1]:
                 output = output + "\n" + word
-
+            output = output + "\n\n"
     tkDisplay.config(state=tk.NORMAL)
     tkDisplay.delete(1.0, tk.END)
     tkDisplay.insert(tk.END, str(output))
@@ -416,11 +420,17 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
     sock.settimeout(1)
 
     connected = False
-
-    while(not connected):  # connect to server
+    counter = 0
+    while(not connected):  # tries 10 times to connect to server, if not connected sleeps then tries to connect again
+        if(counter == 10):
+            counter = 0
+            print("unable to connect")
+            time.sleep(10)
+        counter += 1
         connected = connectToServer()
         print("connecting...")
     print("connected")
+    sock.settimeout(None)
     serverWindow.mainloop()
     # we have succesfully connected to the server
     sock.close()
