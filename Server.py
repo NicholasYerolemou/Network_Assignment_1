@@ -1,3 +1,4 @@
+from re import U
 from socket import *
 from Message import Message
 from Chat import *
@@ -9,7 +10,7 @@ port = 12007
 host = "127.0.0.1"  # "102.39.144.36"
 clients = []
 chats = OrderedDict()
-
+IPUserNameMap = dict()
 
 """
 def isConnected(IP):
@@ -76,6 +77,9 @@ def processPacket(msg, client):
 
         # send back the new chat history
         data = chats[msg.getChatID()].getChatHistory()
+        for ip in chats[msg.getChatID()].getIPs():
+            if(ip in IPUserNameMap):
+                data = data.replace(ip, IPUserNameMap[ip])
         reply = {"ID": 9, "data": data}
         msg = Message(reply, "encode")
         sock.sendto(msg.toString().encode(), client)
@@ -90,12 +94,24 @@ def processPacket(msg, client):
         chat.addMember(newUser)
 
     elif(id == 6):
-        del connected[client[0]]  # removes user from connect dict
+        username = msg.getData()
+        username = username.strip(" ")
+
+        print(username)
+        if(client[0] in IPUserNameMap):
+            IPUserNameMap[client[0]] = username
+        else:
+            temp = {client[0]: username}
+            IPUserNameMap.update(temp)
+
+        print(IPUserNameMap)
     elif(id == 7):
         chat = chats[msg.getChatID()]
         chat.removeMember(client[0])
 
     elif(id == 8):  # returns list of chats this client is in in format chatID:member IP 1, member IP 2
+
+        print(IPUserNameMap)
         data = ""
         for key in chats.keys():  # loop through each key in the chats dict
             temp = chats[key]
@@ -104,18 +120,28 @@ def processPacket(msg, client):
                 temp = ""
                 list_iterator = iter(IPs)
                 next(list_iterator)
-                temp = IPs[0]
+                if(IPs[0] in IPUserNameMap):  # this user has entered a username
+                    temp = IPUserNameMap[IPs[0]]
+                else:
+                    temp = IPs[0]
+
                 for IP in list_iterator:
-                    temp = temp + "," + IP  # produce comma seperarted list of IPs
+                    if(IP in IPUserNameMap):
+                        temp = temp + "," + IPUserNameMap[IP]
+                    else:
+                        temp = temp + "," + IP  # produce comma seperarted list of IPs
+
                 # add chatID: to the front of that list
                 temp = str(key) + ":" + temp
                 data = data + temp + " "
-
         reply = {"ID": 8, "data": data}
         msg = Message(reply, "encode")
         sock.sendto(msg.toString().encode(), client)
     elif(id == 9):  # client views a specific chat
         data = chats[msg.getChatID()].getChatHistory()
+        for ip in chats[msg.getChatID()].getIPs():
+            if(ip in IPUserNameMap):
+                data = data.replace(ip, IPUserNameMap[ip])
         reply = {"ID": 9, "data": data}
         msg = Message(reply, "encode")
         sock.sendto(msg.toString().encode(), client)
@@ -138,8 +164,8 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
             # creates a message object with the data
 
             # print(message.toString())
-       # i, o, e = select.select([sys.stdin], [], [], 0.1)
-       # if(i):
+        i, o, e = select.select([sys.stdin], [], [], 0.1)
+        if(i):
             #input = sys.stdin.readline()
-         #   break
+            break
    # sock.close()
