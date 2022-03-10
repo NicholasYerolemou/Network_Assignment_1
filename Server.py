@@ -6,7 +6,7 @@ import select
 import sys
 
 port = 12007
-host = "192.168.0.177"  # "102.39.144.36"
+host = "127.0.0.1"  # "102.39.144.36"
 clients = []
 chats = OrderedDict()
 
@@ -136,8 +136,8 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
             # creates a message object with the data
 
             # print(message.toString())
-        i, o, e = select.select([sys.stdin], [], [], 0.1)
-        if(i):
+        #i, o, e = select.select([sys.stdin], [], [], 0.1)
+       # if(i):
             #input = sys.stdin.readline()
-            break
-    sock.close()
+         #   break
+    #sock.close()

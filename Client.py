@@ -13,112 +13,117 @@ serverPort = 12007  # server port number
 server = (serverName, serverPort)
 chats = []
 
+##Creates login window, sets the size and colour
 serverWindow = tk.Tk()
 serverWindow.title("ServerConnect")
 serverWindow.geometry("350x100")
 serverWindow.configure(bg='WHITE')
+##
 
-
-lblWelcome = tk.Label(serverWindow, text="Hello!", font=(
-    'Helvatical bold', 15), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
-lblName = tk.Label(serverWindow, text="Please enter your name.", font=(
-    'Helvatical bold', 10), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
-lblName = tk.Label(serverWindow, text="YOUR NAME:",
-                   bg='WHITE').pack(side=tk.LEFT)
+##Prints the label and creates a text box to enter name
+lblWelcome = tk.Label(serverWindow, text="Hello!", font=('Helvatical bold', 15), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
+lblName = tk.Label(serverWindow, text="Please enter your name.", font=('Helvatical bold', 10), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
+lblName = tk.Label(serverWindow, text="YOUR NAME:",bg='WHITE').pack(side=tk.LEFT)
 entName = tk.Entry(serverWindow, bg='WHITE')
 entName.pack(side=tk.LEFT)
+##
 
-
-btnConnect = tk.Button(serverWindow, text="CONNECT", bg='WHITE',
-                       width=20, command=lambda: connectServer(entName.get()))
+##Creates connect button
+btnConnect = tk.Button(serverWindow, text="CONNECT", bg='WHITE', width=20, command=lambda: connect(entName.get()))
 btnConnect.pack(side=tk.LEFT)
+##
 
-
-def connectServer(name):  # connects the client to the server
+##Connects the user to the program
+def connect(name):
     global Name, client
-    if len(name) < 1:
-        tk.messagebox.showerror(
-            title="ERROR!!!", message="Please enter your name. <e.g. John>")
+    if len(name) < 1: #Checks if the user has entered a name
+        tk.messagebox.showerror(title="ERROR!!!", message="Please enter your name. <e.g. John>") #Displays an error message
     else:
         Name = name
-        menu(serverWindow)
+        menu(serverWindow)#Opens main menu GUI
 
 
+##Main menu GUI
 def menu(window):
-    window.destroy()
+    
+    window.destroy()#Closes previous window
+    
+    ##Creates Main menu window, sets the size and colour
     window = tk.Tk()
     window.title("MAIN MENU")
-
     window.geometry("500x500")
     window.configure(bg='WHITE')
+    ##
 
-    lblWelcome = tk.Label(window, text="WELCOME!", font=(
-        'Helvatical bold', 30), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
-    lblOption = tk.Label(window, text="Please select an option:", font=(
-        'Helvatical bold', 20), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
+    ##Prints the welcome label and select option text
+    lblWelcome = tk.Label(window, text="WELCOME!", font=('Helvatical bold', 30), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
+    lblOption = tk.Label(window, text="Please select an option:", font=('Helvatical bold', 20), bg='WHITE', fg='#a83f2c').pack(side=tk.TOP)
+    ##
 
-    btnCreateChat = tk.Button(window, text="START NEW CHAT", width=200, height=5, bg='#a83f2c', fg='WHITE', font=(
-        'Helvatical bold', 15), command=lambda: newChat(window))
+    ##Creates the main menu buttons
+    btnCreateChat = tk.Button(window, text="START NEW CHAT", width=200, height=5, bg='#a83f2c', fg='WHITE', font=('Helvatical bold', 15), command=lambda: newChat(window))#Creates a new chat
     btnCreateChat.pack(side=tk.TOP)
-
-    btnOpenChat = tk.Button(window, text="OPEN EXISTING CHAT", width=200, height=5, bg='#a83f2c',
-                            fg='WHITE', font=('Helvatical bold', 15), command=lambda: openChat(window))
+    btnOpenChat = tk.Button(window, text="OPEN EXISTING CHAT", width=200, height=5, bg='#a83f2c',fg='WHITE', font=('Helvatical bold', 15), command=lambda: openChat(window))#Opens the page of existing chats
     btnOpenChat.pack(side=tk.TOP)
-
-    btnExit = tk.Button(window, text="EXIT", width=200, height=5, bg='#a83f2c', fg='WHITE', font=(
-        'Helvatical bold', 15), command=lambda:  exitApp(window))
+    btnExit = tk.Button(window, text="EXIT", width=200, height=5, bg='#a83f2c', fg='WHITE', font=('Helvatical bold', 15), command=lambda:  exitApp(window))#Exits program
     btnExit.pack(side=tk.TOP)
+    ##
+##End of menu() method
 
-
+##New chat GUI
 def newChat(window):
-    # opnes the new chat window that allows clients to create a new chat, add members and send messages to that chat
-    window.destroy()
+    ##Opens a new chat and allows the user to add participants and send messages
+    
+    window.destroy()#Closes previous window
+    
+    ##Creates a new chat with the server with just the client in
     temp = {"ID": 2}
     msg = Message(temp, "encode")
-    # creates a new chat with the server with just the client in
     sock.sendto(msg.toString().encode(), server)
     packet, serverName = sock.recvfrom(2048)
     msg = Message(packet.decode(), "decode")
-    # adds the new chat ID to out list of existing chats
-    chats.append(msg.getChatID())
+    chats.append(msg.getChatID())# adds the new chat ID to out list of existing chats
+    ##
 
+    ##Creates the new chat window, sets the size
     newChat = tk.Tk()
     newChat.title("NewChat")
-
     newChat.geometry("500x500")
+    ##
 
+    ##Creates top frame
     topFrame = tk.Frame(newChat)
     topFrame.pack(side=tk.TOP)
+    ##
 
-    btnBack = tk.Button(topFrame, text="RETURN",
-                        command=lambda: returnToMain(newChat))
+    ##Creates return and exit buttons
+    btnBack = tk.Button(topFrame, text="RETURN",command=lambda: returnToMain(newChat))#Returns to main menu
     btnBack.pack(side=tk.LEFT)
-
-    btnExit = tk.Button(topFrame, text="EXIT",
-                        command=lambda: exitApp(newChat))
+    btnExit = tk.Button(topFrame, text="EXIT",command=lambda: exitApp(newChat))#Exits program
     btnExit.pack(side=tk.RIGHT)
+    ##
 
+    ##Creates middle frame
     midFrame = tk.Frame(newChat)
     midFrame.pack(side=tk.TOP)
+    ##
 
+    ##Creates add participant label
     lblIP = tk.Label(midFrame, text="ADD PARTICPANT (Enter IP):").pack(side=tk.LEFT)
     entIP = tk.Entry(midFrame)
     entIP.pack(side=tk.LEFT)
+    ##
 
-    btnHelp = tk.Button(midFrame, text="HELP",
-                        command=lambda: print("help"))
+    ##Creates add participant and help button
+    btnHelp = tk.Button(midFrame, text="HELP",command=lambda: help())#Opens the help message
     btnHelp.pack(side=tk.RIGHT)
-
-    # calls method to add user to chat
-    btnAddUser = tk.Button(midFrame, text="ADD PARTICIPANT", command=lambda: disable(
-        entIP, chats[-1], tkMessage, tkDisplay))
+    btnAddUser = tk.Button(midFrame, text="ADD PARTICIPANT", command=lambda: disable(entIP, chats[-1], tkMessage, tkDisplay))#Calls the connectUser method to add a participant to the chat
     btnAddUser.pack(side=tk.LEFT)
-
+    ##
     
-
+    ##Creates display frame for messages in the chat
     displayFrame = tk.Frame(newChat)
-    lblLine = tk.Label(
-        displayFrame, text="*********************************************************************").pack()
+    lblLine = tk.Label(displayFrame, text="*********************************************************************").pack()
     scrollBar = tk.Scrollbar(displayFrame)
     scrollBar.pack(side=tk.RIGHT, fill=tk.Y)
     tkDisplay = tk.Text(displayFrame, height=20, width=55)
@@ -138,7 +143,8 @@ def newChat(window):
         tkMessage.get("1.0", tk.END), chats[-1], tkDisplay, tkMessage, newChat)))
     bottomFrame.pack(side=tk.BOTTOM)
 
-
+def help():
+    tk.messagebox.showinfo(title="HELP", message="Enter the IP address of the user that you would like to add to the chat and then press the 'ADD PARTICIPANT' button to add them.\nType your message in the text box below and press enter to send it.")
 def getChatMessage(input, chatID, display, message, window):
     # get the message the user has tyoed into the new chat
     tkDisplay = display
@@ -211,7 +217,8 @@ def openChat(window):
     # 2d array holds chat id and ips in format [('1', ['123', '1234', '234']), ('2', ['1234', '1234', '231412'])]
     for t in temp:
         parts = t.split(":")
-        output = output + "Chat:" + parts[0] + "   Members:"  # add chatID
+
+        output = output + "\nChat: " + parts[0] + " | Members: "  # add chatID
         # adds the chatID of every chat this client is in to the local list of chatIDs
         chats.append(parts[0])
 
@@ -221,18 +228,22 @@ def openChat(window):
         for mem in temp[1:]:  # adds IP addresses
             members = mem + ", " + mem
             if(members != ""):
-                output = output + ", " + members + "\n"  # adds the ips and chatID together
+
+                output = output + ", " + members #+ "\n"  # adds the ips and chatID together
             else:
-                output = output + " " + members + "\n"  # adds the ips and chatID together
+                output = output + " " + members #+ "\n"  # adds the ips and chatID together
 
     # should contain all the chats the client is a part of
-    displayFrame = tk.Frame(openChat)
-
-    btnBack = tk.Button(displayFrame, text="RETURN",
+    
+    topFrame = tk.Frame(openChat)
+    btnBack = tk.Button(topFrame, text="RETURN",
                         command=lambda: returnToMain(openChat))
-    btnBack.pack(side=tk.TOP)
-    #btnRefresh = tk.Button(displayFrame, text="REFRESH", command=lambda: refresh())
-    # btnRefresh.pack(side=tk.TOP)
+    btnBack.pack(side=tk.LEFT)
+    btnExit = tk.Button(topFrame, text="EXIT",
+                        command=lambda: exitApp(openChat))
+    btnExit.pack(side=tk.RIGHT)
+    topFrame.pack(side=tk.TOP)
+    displayFrame = tk.Frame(openChat)
 
     lblLine = tk.Label(
         displayFrame, text="Chat list:\n*********************************************************************").pack()
@@ -249,16 +260,23 @@ def openChat(window):
 
     bottomFrame = tk.Frame(openChat)
     lblHeading = tk.Label(
-        bottomFrame, text="Type the number of the chat you'd like to open:").pack(side=tk.TOP)
+        bottomFrame, text="ENTER CHAT ID:").pack(side=tk.LEFT)
     chatNum = tk.Entry(bottomFrame)
     chatNum.pack(side=tk.LEFT)
 
     btnOpen = tk.Button(bottomFrame, text="OPEN CHAT",
                         command=lambda: checkChatNum(chatNum.get(), openChat, chats))
-
-    btnOpen.pack(side=tk.RIGHT)
+    btnOpen.pack(side=tk.LEFT)
+    btnDelete = tk.Button(bottomFrame, text="DELETE CHAT",
+                        command=lambda: deleteChat(chatNum.get()))
+    btnDelete.pack(side = tk.RIGHT)
     bottomFrame.pack(side=tk.TOP)
 
+def deleteChat(chatID):
+    if(tk.messagebox.askyesno(title="DeleteChat", message="Are you sure you would like to delete chat " + chatID + "?")):
+        content = {"ID": 7, "chatID": chatID}
+        msg = Message(content, "encode")
+        sock.sendto(msg.toString().encode(), server)
 
 def checkChatNum(chatID, window, chats):
     if str(chatID) in chats:
@@ -290,10 +308,6 @@ def openSpecificChat(chatID, window):
                         command=lambda: openChat(exChat))
     btnBack.pack(side=tk.LEFT)
 
-    btnLeave = tk.Button(topFrame, text="LEAVE CHAT",
-                        command=lambda: leaveChat())
-    btnLeave.pack(side=tk.LEFT)
-
     btnExit = tk.Button(topFrame, text="EXIT",
                         command=lambda: exitApp(exChat))
     btnExit.pack(side=tk.RIGHT)
@@ -310,7 +324,7 @@ def openSpecificChat(chatID, window):
     btnAddUser.pack(side=tk.LEFT)\
     
     btnHelp = tk.Button(midFrame, text="HELP",
-                        command=lambda: print("HELP"))
+                        command=lambda: help())
     btnHelp.pack(side=tk.RIGHT)
 
     
