@@ -8,7 +8,7 @@ import time
 # 192.42.120.238 Cat
 # 196.42.86.183 Collins
 # 102.39.144.36 nick
-serverName = "192.168.0.177"  # set the servers IP address
+serverName = "127.0.0.1"  # set the servers IP address
 serverPort = 12007  # server port number
 server = (serverName, serverPort)
 chats = []
@@ -152,70 +152,23 @@ def newChat(window):
     tkDisplay.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0))
     tkDisplay.tag_config("tag_your_message", foreground="blue")
     scrollBar.config(command=tkDisplay.yview)
-    tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7",
-                     highlightbackground="grey", state="disabled")
+    tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7",highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
+    ##
 
+    ##Creates bottom frame with message label and message box
     bottomFrame = tk.Frame(newChat)
-    lblEnterMsg = tk.Label(
-        bottomFrame, text="TYPE YOUR MESSAGE HERE:").pack(side=tk.TOP)
+    btnRefresh = tk.Button(bottomFrame, text="REFRESH",command=lambda: refreshChat(chats[-1], tkDisplay, newChat))#Returns to main menu
+    btnRefresh.pack(side=tk.TOP)
+    lblEnterMsg = tk.Label(bottomFrame, text="TYPE YOUR MESSAGE HERE:").pack(side=tk.TOP)
     tkMessage = tk.Text(bottomFrame, height=2, width=55)
     tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
     tkMessage.config(highlightbackground="grey", state=tk.NORMAL)
-    tkMessage.bind("<Return>", (lambda event: getChatMessage(
-        tkMessage.get("1.0", tk.END), chats[-1], tkDisplay, tkMessage, newChat)))
+    tkMessage.bind("<Return>", (lambda event: getChatMessage(tkMessage.get("1.0", tk.END), chats[-1], tkDisplay, tkMessage, newChat)))
     bottomFrame.pack(side=tk.BOTTOM)
+    ##
+##End of newChat() method
 
-
-def help():
-    tk.messagebox.showinfo(title="HELP", message="Enter the IP address of the user that you would like to add to the chat and then press the 'ADD PARTICIPANT' button to add them.\nType your message in the text box below and press enter to send it.")
-
-
-def getChatMessage(input, chatID, display, message, window):
-    # get the message the user has tyoed into the new chat
-    tkDisplay = display
-    tkMessage = message
-    input = input.replace('\n', '')
-    texts = tkDisplay.get("1.0", tk.END).strip()
-
-    tkDisplay.config(state=tk.NORMAL)
-
-    tkDisplay.config(state=tk.NORMAL)
-    tkDisplay.delete(1.0, tk.END)
-    tkDisplay.insert(tk.END, "hello")
-    tkDisplay.config(state=tk.DISABLED)
-
-    tkDisplay.see(tk.END)
-    tkMessage.delete('1.0', tk.END)
-
-    # this returns the chathistory - print this to the screen
-
-    #print(send_mssage_to_server(input, chatID, window))
-
-    chatHistory = send_mssage_to_server(input, chatID, window)
-    output = ""
-    for i in chatHistory:
-        output = output + i[0]  # the IP address
-        for word in i[1]:
-            output = output + "\n" + word
-        output = output + "\n\n"
-
-    tkDisplay.config(state=tk.NORMAL)
-    tkDisplay.delete(1.0, tk.END)
-    tkDisplay.insert(tk.END, str(output))
-    tkDisplay.config(state=tk.DISABLED)
-
-    #[(' 127.0.0.1', [' hello',"other messages"])]
-
-
-def send_mssage_to_server(input, chatID, window):
-    content = {"ID": 3, "chatID": chatID, "data": input}
-    msg = Message(content, "encode")
-    sock.sendto(msg.toString().encode(), server)
-
-    packet, serverName = sock.recvfrom(2048)
-    msg = Message(packet.decode(), "decode")
-    return getChatHistory(msg)
 
 
 def returnToMain(window):
@@ -252,12 +205,12 @@ def openChat(window):
         output = output + temp[0]  # adds the first ip address
         members = ""
         for mem in temp[1:]:  # adds IP addresses
-            members = members + ", " + mem
-
+            members = mem + ", " + mem
         if(members != ""):
-            output = output + ", " + members  # + "\n"  # adds the ips and chatID together
+
+            output = output + ", " + members #+ "\n"  # adds the ips and chatID together
         else:
-            output = output + " " + members  # + "\n"  # adds the ips and chatID together
+            output = output + " " + members #+ "\n"  # adds the ips and chatID together
 
     # should contain all the chats the client is a part of
 
@@ -370,8 +323,10 @@ def openSpecificChat(chatID, window):
     displayFrame.pack(side=tk.TOP)
 
     bottomFrame = tk.Frame(exChat)
-    lblIP = tk.Label(
-        bottomFrame, text="ENTER YOUR MESSAGE HERE:").pack(side=tk.TOP)
+
+    btnRefresh = tk.Button(bottomFrame, text="REFRESH",command=lambda: refreshChat(chatID, tkDisplay, exChat))#Returns to main menu
+    btnRefresh.pack(side=tk.TOP)
+    lblIP = tk.Label(bottomFrame, text="ENTER YOUR MESSAGE HERE:").pack(side=tk.TOP)
     tkMessage = tk.Text(bottomFrame, height=2, width=55)
     tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
     tkMessage.config(highlightbackground="grey", state=tk.NORMAL)
@@ -416,6 +371,73 @@ def getChatHistory(msg):
             chatHistory.append(temp)
     return chatHistory
 
+def refreshChat(chatID, display, window): 
+    tkDisplay=display
+    chatHistory = send_mssage_to_server("", chatID, window)
+    output = ""
+    for i in chatHistory:
+        output = output + i[0]  # the IP address
+        for word in i[1]:
+            output = output + "\n" + word
+        output = output + "\n\n"
+
+    tkDisplay.config(state=tk.NORMAL)
+    tkDisplay.delete(1.0, tk.END)
+    tkDisplay.insert(tk.END, str(output))
+    tkDisplay.config(state=tk.DISABLED)
+##Help method returns text box with help instructions
+def help():
+    tk.messagebox.showinfo(title="HELP", message="Enter the IP address of the user that you would like to add to the chat and then press the 'ADD PARTICIPANT' button to add them.\nType your message in the text box below and press enter to send it.")#Displays help message
+##End of Help() method
+
+##GetChatMessage method returns message that the user entered in the text box
+def getChatMessage(input, chatID, display, message, window):
+    #Get the message the user has typed into the new chat
+    
+    ##Gets the message the user has entered
+    tkDisplay = display
+    tkMessage = message
+    input = input.replace('\n', '')
+    texts = tkDisplay.get("1.0", tk.END).strip()
+
+
+    tkDisplay.config(state=tk.NORMAL)
+    tkDisplay.delete(1.0, tk.END)
+    tkDisplay.config(state=tk.DISABLED)
+
+    tkDisplay.see(tk.END)
+    tkMessage.delete('1.0', tk.END)
+    ##
+
+
+    ##Gets chat history and prints it to the screen
+    chatHistory = send_mssage_to_server(input, chatID, window)
+    output = ""
+    for i in chatHistory:
+        output = output + i[0]  # the IP address
+        for word in i[1]:
+            output = output + "\n" + word
+        output = output + "\n\n"
+
+    tkDisplay.config(state=tk.NORMAL)
+    tkDisplay.delete(1.0, tk.END)
+    tkDisplay.insert(tk.END, str(output))
+    tkDisplay.config(state=tk.DISABLED)
+    ##
+
+##End of getChatMessage() method
+
+##send_mssage_to_server
+def send_mssage_to_server(input, chatID, window):
+    #Sends message to server asking for chat history
+    content = {"ID": 3, "chatID": chatID, "data": input}
+    msg = Message(content, "encode")
+    sock.sendto(msg.toString().encode(), server)
+
+    packet, serverName = sock.recvfrom(2048)
+    msg = Message(packet.decode(), "decode")
+    return getChatHistory(msg)
+##End of send_mssage_to_server() method
 
 def disable(entIP, chatID, tkMessage, tkDisplay):  # adds a user to a specific chat
     global ip, client
