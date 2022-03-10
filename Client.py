@@ -8,7 +8,7 @@ import time
 # 192.42.120.238 Cat
 # 196.42.86.183 Collins
 # 102.39.144.36 nick
-serverName = "192.168.0.177"  # set the servers IP address
+serverName = "127.0.0.1"  # set the servers IP address
 serverPort = 12007  # server port number
 server = (serverName, serverPort)
 chats = []
@@ -94,18 +94,27 @@ def newChat(window):
                         command=lambda: returnToMain(newChat))
     btnBack.pack(side=tk.LEFT)
 
-    lblIP = tk.Label(topFrame, text="Their IP:").pack(side=tk.LEFT)
-    entIP = tk.Entry(topFrame)
-    entIP.pack(side=tk.LEFT)
-
-    # calls method to add user to chat
-    btnAddUser = tk.Button(topFrame, text="ADD PARTICIPANT", command=lambda: disable(
-        entIP, chats[-1], tkMessage, tkDisplay))
-    btnAddUser.pack(side=tk.LEFT)
-
     btnExit = tk.Button(topFrame, text="EXIT",
                         command=lambda: exitApp(newChat))
     btnExit.pack(side=tk.RIGHT)
+
+    midFrame = tk.Frame(newChat)
+    midFrame.pack(side=tk.TOP)
+
+    lblIP = tk.Label(midFrame, text="ADD PARTICPANT (Enter IP):").pack(side=tk.LEFT)
+    entIP = tk.Entry(midFrame)
+    entIP.pack(side=tk.LEFT)
+
+    btnHelp = tk.Button(midFrame, text="HELP",
+                        command=lambda: print("help"))
+    btnHelp.pack(side=tk.RIGHT)
+
+    # calls method to add user to chat
+    btnAddUser = tk.Button(midFrame, text="ADD PARTICIPANT", command=lambda: disable(
+        entIP, chats[-1], tkMessage, tkDisplay))
+    btnAddUser.pack(side=tk.LEFT)
+
+    
 
     displayFrame = tk.Frame(newChat)
     lblLine = tk.Label(
@@ -121,6 +130,7 @@ def newChat(window):
     displayFrame.pack(side=tk.TOP)
 
     bottomFrame = tk.Frame(newChat)
+    lblEnterMsg = tk.Label(bottomFrame, text="TYPE YOUR MESSAGE HERE:").pack(side=tk.TOP)
     tkMessage = tk.Text(bottomFrame, height=2, width=55)
     tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
     tkMessage.config(highlightbackground="grey", state=tk.NORMAL)
@@ -280,17 +290,30 @@ def openSpecificChat(chatID, window):
                         command=lambda: openChat(exChat))
     btnBack.pack(side=tk.LEFT)
 
-    lblIP = tk.Label(topFrame, text="Their IP:").pack(side=tk.LEFT)
-    entIP = tk.Entry(topFrame)
-    entIP.pack(side=tk.LEFT)
-
-    btnAddUser = tk.Button(topFrame, text="ADD PARTICIPANT", command=lambda: disable(
-        entIP, chats[-1], btnConnect, tkMessage))
-    btnAddUser.pack(side=tk.LEFT)
+    btnLeave = tk.Button(topFrame, text="LEAVE CHAT",
+                        command=lambda: leaveChat())
+    btnLeave.pack(side=tk.LEFT)
 
     btnExit = tk.Button(topFrame, text="EXIT",
                         command=lambda: exitApp(exChat))
     btnExit.pack(side=tk.RIGHT)
+
+    midFrame = tk.Frame(exChat)
+    midFrame.pack(side=tk.TOP)
+
+    lblIP = tk.Label(midFrame, text="ADD PARTICIPANT (Enter IP):").pack(side=tk.LEFT)
+    entIP = tk.Entry(midFrame)
+    entIP.pack(side=tk.LEFT)
+
+    btnAddUser = tk.Button(midFrame, text="ADD PARTICIPANT", command=lambda: disable(
+       entIP, chats[-1], tkMessage, tkDisplay))
+    btnAddUser.pack(side=tk.LEFT)\
+    
+    btnHelp = tk.Button(midFrame, text="HELP",
+                        command=lambda: print("HELP"))
+    btnHelp.pack(side=tk.RIGHT)
+
+    
 
     displayFrame = tk.Frame(exChat)
     lblLine = tk.Label(
@@ -306,6 +329,7 @@ def openSpecificChat(chatID, window):
     displayFrame.pack(side=tk.TOP)
 
     bottomFrame = tk.Frame(exChat)
+    lblIP = tk.Label(bottomFrame, text="ENTER YOUR MESSAGE HERE:").pack(side=tk.TOP)
     tkMessage = tk.Text(bottomFrame, height=2, width=55)
     tkMessage.pack(side=tk.LEFT, padx=(5, 13), pady=(5, 10))
     tkMessage.config(highlightbackground="grey", state=tk.NORMAL)
@@ -362,9 +386,6 @@ def disable(entIP, chatID, tkMessage, tkDisplay):  # adds a user to a specific c
         tkMessage.config(state=tk.NORMAL)
         connectUser(chatID, entIP, tkDisplay)
 
-# Try catch for valid IP
-        # the entered IP
-
 
 def is_valid_IP(address):
     parts = address.split(".")
@@ -390,8 +411,9 @@ def connectUser(chatID, entIP, tkDisplay):  # sends message to server to add cli
         tkDisplay.insert(tk.END, str(output))
         tkDisplay.config(state=tk.DISABLED)
     else:
-        print("Invalid IP")
+        tk.messagebox.showerror(title="ERROR!!!", message="Please enter a valid IP address <e.g. 192.42.120.238>")
         entIP.delete(0, tk.END)
+        entIP.config(state=tk.NORMAL)
         tkDisplay.config(state=tk.NORMAL)
         tkDisplay.config(state=tk.DISABLED)
 
