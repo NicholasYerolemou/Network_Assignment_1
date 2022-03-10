@@ -48,4 +48,7 @@ class Chat:
     def clearChatHistory(self):
         self.chatHistory = []
 
+    def removeMember(self, ip):
+        self.members.remove(ip)
+
     # def addMessage(self, ipAddress , msg):
