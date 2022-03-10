@@ -6,7 +6,7 @@ import select
 import sys
 
 port = 12007
-host = "127.0.0.1"  # "102.39.144.36"
+host = "192.168.0.177"  # "102.39.144.36"
 clients = []
 chats = OrderedDict()
 
@@ -92,7 +92,9 @@ def processPacket(msg, client):
     elif(id == 6):
         del connected[client[0]]  # removes user from connect dict
     elif(id == 7):
-        print("leave chat")
+        chat = chats[msg.getChatID()]
+        chat.removeMember(client[0])
+
     elif(id == 8):  # returns list of chats this client is in in format chatID:member IP 1, member IP 2
         data = ""
         for key in chats.keys():  # loop through each key in the chats dict
@@ -136,8 +138,8 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
             # creates a message object with the data
 
             # print(message.toString())
-        #i, o, e = select.select([sys.stdin], [], [], 0.1)
-       # if(i):
+        i, o, e = select.select([sys.stdin], [], [], 0.1)
+        if(i):
             #input = sys.stdin.readline()
-         #   break
-    #sock.close()
+            break
+    sock.close()
