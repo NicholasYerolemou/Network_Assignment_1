@@ -8,7 +8,7 @@ import time
 # 192.42.120.238 Cat
 # 196.42.86.183 Collins
 # 102.39.144.36 nick
-serverName = "127.0.0.1"  # set the servers IP address
+serverName = "192.168.0.177"  # set the servers IP address
 serverPort = 12007  # server port number
 server = (serverName, serverPort)
 chats = []
@@ -267,16 +267,17 @@ def openChat(window):
     btnOpen = tk.Button(bottomFrame, text="OPEN CHAT",
                         command=lambda: checkChatNum(chatNum.get(), openChat, chats))
     btnOpen.pack(side=tk.LEFT)
-    btnDelete = tk.Button(bottomFrame, text="DELETE CHAT",
+    btnDelete = tk.Button(bottomFrame, text="LEAVE CHAT",
                         command=lambda: deleteChat(chatNum.get()))
     btnDelete.pack(side = tk.RIGHT)
     bottomFrame.pack(side=tk.TOP)
 
 def deleteChat(chatID):
-    if(tk.messagebox.askyesno(title="DeleteChat", message="Are you sure you would like to delete chat " + chatID + "?")):
+    if(tk.messagebox.askyesno(title="LeaveChat", message="Are you sure you would like to leave chat " + chatID + "?")):
         content = {"ID": 7, "chatID": chatID}
         msg = Message(content, "encode")
         sock.sendto(msg.toString().encode(), server)
+
 
 def checkChatNum(chatID, window, chats):
     if str(chatID) in chats:
