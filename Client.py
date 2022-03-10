@@ -176,9 +176,8 @@ def send_mssage_to_server(input, chatID, window):
 
 def returnToMain(window):
     menu(window)
-###################################
-def updateChatList(self,c):
-    self.chats = c
+
+
 def openChat(window):
     # opens existing chats
     window.destroy()
@@ -208,7 +207,6 @@ def openChat(window):
         # adds the chatID and members to the chat array
         temp2 = (chatID, chatIPS)
         chatList.append(temp2)
-    print("the chat list is now line 210",chats)
     # should contain all the chats the client is a part of
 
     displayFrame = tk.Frame(openChat)
@@ -239,14 +237,13 @@ def openChat(window):
     chatNum.pack(side=tk.LEFT)
 
     btnOpen = tk.Button(bottomFrame, text="OPEN CHAT",
-                        command=lambda: checkChatNum(chatNum.get(), openChat,chats))
+                        command=lambda: checkChatNum(chatNum.get(), openChat, chats))
 
     btnOpen.pack(side=tk.RIGHT)
     bottomFrame.pack(side=tk.TOP)
 
 
-def checkChatNum(chatID, window,chats):
-    print(chats)
+def checkChatNum(chatID, window, chats):
     if str(chatID) in chats:
         openSpecificChat(chatID, window)
     else:
@@ -426,24 +423,4 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
     print("connected")
     serverWindow.mainloop()
     # we have succesfully connected to the server
-
-    while True:
-        while True:
-            # print("checking for recieved messages")
-            try:
-                packet, serverAddress = sock.recvfrom(2048)
-                message = Message(packet.decode(), "decode")
-
-                processPacket(message)  # a messages was recieved process it
-            except:  # socket.timeout(): fix that later so it excepts a specific exception rather than all
-                # print("no messages recieved \n")
-                break
-        # waits 5 seconds for user input
-        print("waiting for user input ...")
-        # type NC ip ip ip ...
-        i, o, e = select.select([sys.stdin], [], [], 10)
-        if(i):
-            input = sys.stdin.readline()
-            processInput(input)
-
     sock.close()

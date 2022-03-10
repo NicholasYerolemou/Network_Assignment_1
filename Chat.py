@@ -2,7 +2,7 @@ from Message import *
 
 
 class Chat:
-    chatHistory = list()  # [[IP,message] [IP,message]]
+    chatHistory = []  # [[IP,message] [IP,message]]
     members = []
     msg = Message("", "")
     chatId = 0
@@ -12,7 +12,6 @@ class Chat:
         self.members = IPs
 
     def getChatHistory(self):
-        print(self.chatHistory)
         output = ""
         prevIP = ""
         counter = 1
@@ -45,5 +44,8 @@ class Chat:
 
     def addMember(self, ip):
         self.members.append(ip)
+
+    def clearChatHistory(self):
+        self.chatHistory = []
 
     # def addMessage(self, ipAddress , msg):
