@@ -7,28 +7,10 @@ import select
 import sys
 
 port = 12007
-host = "127.0.0.1"  # "102.39.144.36"
+host = "192.168.0.177"  # "102.39.144.36"
 clients = []
 chats = OrderedDict()
 IPUserNameMap = dict()
-
-"""
-def isConnected(IP):
-    if(IP in connected):
-        return True
-    else:
-        return False
-"""
-
-"""
-def getConnectedClients(IPs):
-    temp = []
-    for ip in IPs:
-        if ip in connected:
-            temp2 = (ip, connected[ip])
-            temp.append(temp2)
-    return temp
-"""
 
 
 def processPacket(msg, client):
@@ -48,7 +30,7 @@ def processPacket(msg, client):
         # make new chat
         # the data contains all the IPs of the clients added to the chat
         # members = msg.getData().split()  # gets IP addresses stored in data
-        #size = len(chats)
+        # size = len(chats)
 
         members = [client[0]]  # adds just the client to the chat
         chatID = 0
@@ -97,7 +79,6 @@ def processPacket(msg, client):
         username = msg.getData()
         username = username.strip(" ")
 
-        print(username)
         if(client[0] in IPUserNameMap):
             IPUserNameMap[client[0]] = username
         else:
@@ -111,7 +92,6 @@ def processPacket(msg, client):
 
     elif(id == 8):  # returns list of chats this client is in in format chatID:member IP 1, member IP 2
 
-        print(IPUserNameMap)
         data = ""
         for key in chats.keys():  # loop through each key in the chats dict
             temp = chats[key]
@@ -163,9 +143,8 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
             pass
             # creates a message object with the data
 
-            # print(message.toString())
         i, o, e = select.select([sys.stdin], [], [], 0.1)
         if(i):
-            #input = sys.stdin.readline()
+            # input = sys.stdin.readline()
             break
-   # sock.close()
+    sock.close()

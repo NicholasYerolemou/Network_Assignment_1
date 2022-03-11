@@ -8,11 +8,11 @@ import time
 # 192.42.120.238 Cat
 # 196.42.86.183 Collins
 # 102.39.144.36 nick
-serverName = "127.0.0.1"  # set the servers IP address
+serverName = "192.168.0.177"  # set the servers IP address
 serverPort = 12007  # server port number
 server = (serverName, serverPort)
 chats = []
-username = ""
+
 # Creates login window, sets the size and colour
 serverWindow = tk.Tk()
 serverWindow.title("ServerConnect")
@@ -52,11 +52,12 @@ def connect(name):
         # sends the clients username to the server
         msg = Message(temp, "encode")
         sock.sendto(msg.toString().encode(), server)
-
         menu(serverWindow)  # Opens main menu GUI
-
+# End Connect() method
 
 # Main menu GUI
+
+
 def menu(window):
 
     window.destroy()  # Closes previous window
@@ -178,18 +179,20 @@ def newChat(window):
     ##
 # End of newChat() method
 
-
-def returnToMain(window):
-    menu(window)
+# Open chat GUI
 
 
 def openChat(window):
-    # view existing chats
-    window.destroy()
+    # Opens the page to view existing chats
+
+    window.destroy()  # Closes previous page
+
+    # Creates OpenChat window, sets size
     openChat = tk.Tk()
     openChat.title("OpenChat")
-
     openChat.geometry("500x500")
+    ##
+
     # returns list of chats this client is in in format chatID:member IP 1, member IP 2
     content = {"ID": 8}
     msg = Message(content, "encode")
@@ -204,6 +207,7 @@ def openChat(window):
     # 2d array holds chat id and ips in format [('1', ['123', '1234', '234']), ('2', ['1234', '1234', '231412'])]
     for t in temp:
         parts = t.split(":")
+
         output = output + "\nChat: " + parts[0] + " | Members: "  # add chatID
         # adds the chatID of every chat this client is in to the local list of chatIDs
         chats.append(parts[0])
@@ -212,15 +216,15 @@ def openChat(window):
         output = output + temp[0]  # adds the first ip address
         members = ""
         for mem in temp[1:]:  # adds IP addresses
-            members = mem + ", " + mem
+            members = members + ", " + mem
         if(members != ""):
-
-            output = output + ", " + members  # + "\n"  # adds the ips and chatID together
+            output = output + "" + members  # + "\n"  # adds the ips and chatID together
         else:
-            output = output + " " + members  # + "\n"  # adds the ips and chatID together
+            output = output + "" + members  # + "\n"  # adds the ips and chatID together
 
     # should contain all the chats the client is a part of
 
+    # Creates top frame and return and exit buttons
     topFrame = tk.Frame(openChat)
     btnBack = tk.Button(topFrame, text="RETURN",
                         command=lambda: returnToMain(openChat))
@@ -229,8 +233,10 @@ def openChat(window):
                         command=lambda: exitApp(openChat))
     btnExit.pack(side=tk.RIGHT)
     topFrame.pack(side=tk.TOP)
-    displayFrame = tk.Frame(openChat)
+    ##
 
+    # Creates display frame
+    displayFrame = tk.Frame(openChat)
     lblLine = tk.Label(
         displayFrame, text="Chat list:\n*********************************************************************").pack()
     scrollBar = tk.Scrollbar(displayFrame)
@@ -241,15 +247,19 @@ def openChat(window):
     tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7",
                      highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
+    ##
 
-    update_chat_list(output, tkDisplay)
+    update_chat_list(output, tkDisplay)  # Updates chat list
 
+    # Creates bottom frame
     bottomFrame = tk.Frame(openChat)
     lblHeading = tk.Label(
         bottomFrame, text="ENTER CHAT ID:").pack(side=tk.LEFT)
     chatNum = tk.Entry(bottomFrame)
     chatNum.pack(side=tk.LEFT)
+    ##
 
+    # Creates open chat and leave chat buttons
     btnOpen = tk.Button(bottomFrame, text="OPEN CHAT",
                         command=lambda: checkChatNum(chatNum.get(), openChat, chats))
     btnOpen.pack(side=tk.LEFT)
@@ -257,65 +267,59 @@ def openChat(window):
                           command=lambda: deleteChat(chatNum.get()))
     btnDelete.pack(side=tk.RIGHT)
     bottomFrame.pack(side=tk.TOP)
+    ##
+# Ends openChat()  method
 
-
-def deleteChat(chatID):
-    if(tk.messagebox.askyesno(title="LeaveChat", message="Are you sure you would like to leave chat " + chatID + "?")):
-        content = {"ID": 7, "chatID": chatID}
-        msg = Message(content, "encode")
-        sock.sendto(msg.toString().encode(), server)
-
-
-def checkChatNum(chatID, window, chats):
-    if str(chatID) in chats:
-        openSpecificChat(chatID, window)
-    else:
-        tk.messagebox.showerror(
-            title="ERROR!!!", message="Please enter a valid chat ID <e.g. 1>")
-
-
-def update_chat_list(display, tkDisplay):
-    tkDisplay.config(state=tk.NORMAL)
-    tkDisplay.delete('1.0', tk.END)
-    tkDisplay.insert(tk.END, display)
-    tkDisplay.config(state=tk.DISABLED)
+# Open specific chat method
 
 
 def openSpecificChat(chatID, window):
-    window.destroy()
+    # Opens a specific chat
 
+    window.destroy()  # Closes previous window
+
+    # Creates existing chat list window, sets size
     exChat = tk.Tk()
     exChat.title("ExChat")
-
     exChat.geometry("500x500")
+    ##
 
+    # Creates top frame
     topFrame = tk.Frame(exChat)
     topFrame.pack(side=tk.TOP)
+    ##
 
+    # Creates return and exit button
     btnBack = tk.Button(topFrame, text="RETURN",
                         command=lambda: openChat(exChat))
     btnBack.pack(side=tk.LEFT)
-
     btnExit = tk.Button(topFrame, text="EXIT",
                         command=lambda: exitApp(exChat))
     btnExit.pack(side=tk.RIGHT)
+    ##
 
+    # Creates middle frame
     midFrame = tk.Frame(exChat)
     midFrame.pack(side=tk.TOP)
+    ##
 
+    # Creates add participant label and button
     lblIP = tk.Label(
         midFrame, text="ADD PARTICIPANT (Enter IP):").pack(side=tk.LEFT)
     entIP = tk.Entry(midFrame)
     entIP.pack(side=tk.LEFT)
-
     btnAddUser = tk.Button(midFrame, text="ADD PARTICIPANT", command=lambda: disable(
         entIP, chats[-1], tkMessage, tkDisplay))
-    btnAddUser.pack(side=tk.LEFT)\
+    btnAddUser.pack(side=tk.LEFT)
+    ##
 
+    # Creates help button
     btnHelp = tk.Button(midFrame, text="HELP",
                         command=lambda: help())
     btnHelp.pack(side=tk.RIGHT)
+    ##
 
+    # Creates dispplay frame
     displayFrame = tk.Frame(exChat)
     lblLine = tk.Label(
         displayFrame, text="*********************************************************************").pack()
@@ -328,9 +332,11 @@ def openSpecificChat(chatID, window):
     tkDisplay.config(yscrollcommand=scrollBar.set, background="#F4F6F7",
                      highlightbackground="grey", state="disabled")
     displayFrame.pack(side=tk.TOP)
+    ##
 
-    bottomFrame = tk.Frame(exChat)
+    bottomFrame = tk.Frame(exChat)  # Creates bottom frame
 
+    # Creates refresh button and message box
     btnRefresh = tk.Button(bottomFrame, text="REFRESH", command=lambda: refreshChat(
         chatID, tkDisplay, exChat))  # Returns to main menu
     btnRefresh.pack(side=tk.TOP)
@@ -342,16 +348,18 @@ def openSpecificChat(chatID, window):
     tkMessage.bind("<Return>", (lambda event: getChatMessage(
         tkMessage.get("1.0", tk.END), chatID, tkDisplay, tkMessage, exChat)))
     bottomFrame.pack(side=tk.BOTTOM)
+    ##
 
+    # Requests chat history
     content = {"ID": 9, "chatID": chatID}
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)  # requests chat history
 
     packet, serverName = sock.recvfrom(2048)
     msg = Message(packet.decode(), "decode")
+    ##
 
-    # print this to the screen
-
+    # Prints chat history to the screen
     chatHistory = getChatHistory(msg)
     output = ""
     if(chatHistory != []):
@@ -364,9 +372,56 @@ def openSpecificChat(chatID, window):
     tkDisplay.delete(1.0, tk.END)
     tkDisplay.insert(tk.END, str(output))
     tkDisplay.config(state=tk.DISABLED)
+    ##
+# Ends openSpecificChat() method
+
+# Check chat num method
+
+
+def checkChatNum(chatID, window, chats):
+    # Checks if the user has entered a valid chat ID
+    if str(chatID) in chats:
+        openSpecificChat(chatID, window)
+    else:
+        tk.messagebox.showerror(
+            title="ERROR!!!", message="Please enter a valid chat ID <e.g. 1>")  # Displays error message
+# Ends checkChatNum() method
+
+# Return to main menu
+
+
+def returnToMain(window):
+    menu(window)
+# End of return to main menu method
+
+# Delete chat method
+
+
+def deleteChat(chatID):
+    if(tk.messagebox.askyesno(title="LeaveChat", message="Are you sure you would like to leave chat " + chatID + "?")):  # If user chooses yes
+        # removes the user from the chat
+        content = {"ID": 7, "chatID": chatID}
+        msg = Message(content, "encode")
+        sock.sendto(msg.toString().encode(), server)
+        ##
+# Ends deleteChat() method
+
+# Update chat list method
+
+
+def update_chat_list(display, tkDisplay):
+    # Updates the user cchat list
+    tkDisplay.config(state=tk.NORMAL)
+    tkDisplay.delete('1.0', tk.END)
+    tkDisplay.insert(tk.END, display)
+    tkDisplay.config(state=tk.DISABLED)
+# End update_chat_list() method
+
+# Get chat history method
 
 
 def getChatHistory(msg):
+    # Returns chat history in array form
     chatHistory = []
     # data in format [('127.0.0', ['hello', 'how are you', ' sttsfd']), ('123232.123', ['afadsfa', 'asdfasf', 'adfas'])
     if(msg.getData()):
@@ -378,23 +433,31 @@ def getChatHistory(msg):
             messages = parts[1].split(",")
             temp = (ip, messages)
             chatHistory.append(temp)
-    return chatHistory
+    return chatHistory  # Returns chat history
+# Ends getChatHistory() method
+
+# Refresh chat method
 
 
 def refreshChat(chatID, display, window):
+    # Refreshes the chat ti show messages
     tkDisplay = display
     chatHistory = send_mssage_to_server("", chatID, window)
     output = ""
+    # Gets chat history
     for i in chatHistory:
         output = output + i[0]  # the IP address
         for word in i[1]:
             output = output + "\n" + word
         output = output + "\n\n"
-
+    # Prints chat history to screen
     tkDisplay.config(state=tk.NORMAL)
     tkDisplay.delete(1.0, tk.END)
     tkDisplay.insert(tk.END, str(output))
     tkDisplay.config(state=tk.DISABLED)
+    ##
+# Ends refreshChat() method
+
 # Help method returns text box with help instructions
 
 
@@ -436,7 +499,6 @@ def getChatMessage(input, chatID, display, message, window):
     tkDisplay.insert(tk.END, str(output))
     tkDisplay.config(state=tk.DISABLED)
     ##
-
 # End of getChatMessage() method
 
 # send_mssage_to_server
@@ -453,20 +515,27 @@ def send_mssage_to_server(input, chatID, window):
     return getChatHistory(msg)
 # End of send_mssage_to_server() method
 
+# disable method
+
 
 def disable(entIP, chatID, tkMessage, tkDisplay):  # adds a user to a specific chat
+   # Disables the text box from working while it tries to add the IP address to the chat
     global ip, client
 
     if len(entIP.get()) < 1:
         tk.messagebox.showerror(
-            title="ERROR!!!", message="You MUST enter the IP address of the person you wish to chat with <e.g. 203.0.113.42>")
+            title="ERROR!!!", message="You MUST enter the IP address of the person you wish to chat with <e.g. 203.0.113.42>")  # Displays error message if the IP has not been entered
     else:
         entIP.config(state=tk.DISABLED)
         tkMessage.config(state=tk.NORMAL)
         connectUser(chatID, entIP, tkDisplay)
+# Ends disable() method
+
+# Is valid IP method
 
 
 def is_valid_IP(address):
+    # Checks whether the user has entered a valid IP
     parts = address.split(".")
     if len(parts) != 4:
         return False
@@ -474,36 +543,52 @@ def is_valid_IP(address):
         if int(item) < 0 or int(item) > 255:
             return False
     return True
+# Ends is_valid_IP() method
+
+# Connect User method
 
 
 def connectUser(chatID, entIP, tkDisplay):  # sends message to server to add client to chat
+    # Adds the IP entered to the chat
     strEntIp = str(entIP.get())
     if is_valid_IP(strEntIp):
+        # Sends ID to server to connect user to the chat
         content = {"ID": 5, "chatID": chatID,
                    "data": str(entIP.get())}  # entIP.get
         msg = Message(content, "encode")
         sock.sendto(msg.toString().encode(), server)
+        ##
+
+        # Prints to the screen that the user has been added
         entIP.config(state=tk.NORMAL)
         output = "\n" + entIP.get() + " has been added.\n"
         entIP.delete(0, tk.END)
         tkDisplay.config(state=tk.NORMAL)
         tkDisplay.insert(tk.END, str(output))
         tkDisplay.config(state=tk.DISABLED)
+        ##
     else:
         tk.messagebox.showerror(
-            title="ERROR!!!", message="Please enter a valid IP address <e.g. 192.42.120.238>")
+            title="ERROR!!!", message="Please enter a valid IP address <e.g. 192.42.120.238>")  # Displays error if the user has entered an invalid IP
         entIP.delete(0, tk.END)
         entIP.config(state=tk.NORMAL)
         tkDisplay.config(state=tk.NORMAL)
         tkDisplay.config(state=tk.DISABLED)
+# Ends ConnectUser() method
+
+# Exit app method
 
 
 def exitApp(window):
-    window.destroy()
-    exit(0)
+    window.destroy()  # Closes window
+    exit(0)  # Stops program
+# Ends exitApp() method
+
+# Connect to server method
 
 
 def connectToServer():
+    # Connects the client to the server
     content = {"ID": 0}
     msg = Message(content, "encode")
     sock.sendto(msg.toString().encode(), server)
@@ -516,6 +601,7 @@ def connectToServer():
         return False
 
     return False
+# Ends connect to server method
 
 
 with socket(AF_INET, SOCK_DGRAM) as sock:
@@ -533,7 +619,6 @@ with socket(AF_INET, SOCK_DGRAM) as sock:
         print("connecting...")
     print("connected")
     sock.settimeout(None)
-
-    serverWindow.mainloop()
+    serverWindow.mainloop()  # Starts the GUI
     # we have succesfully connected to the server
-    sock.close()
+    sock.close()  # Closes the socket
