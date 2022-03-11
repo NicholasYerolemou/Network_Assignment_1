@@ -35,18 +35,23 @@ class Message:
                 self.msg["data"] = datagram["data"]
 
     def getID(self):
+        #Returns message ID
         return self.msg["ID"]
 
     def getData(self):
+        #Returns the contents of the message
         return self.msg["data"]
 
     def getChatID(self):
+        #Returns chat ID
         return self.msg["chatID"]
 
     def getPin(self):
+        #Returns pin
         return self.msg["pin"]
 
-    def toString(self):  # returns a string of each item in the dict
+    def toString(self):  
+        #Returns a string of each item in the dictionary
         output = ""
         for key in self.msg:
             output = output + str(self.msg[key]) + " "
