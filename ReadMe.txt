@@ -14,6 +14,11 @@ Once the IP adderess of the Server and Client are setup run the Server.py class.
 You should see ready to recieve ... printed out.
 To end the server class at any point type "exit" and press enter
 
+Note: If you are running the server class on a windows computer.
+There is a portion of code that cannot run on windows computers but works on Mac and Linux.
+If you wish to run on windows comment out lines 148 to 151 in Server.py. The lines tarting with i,o,e and the entire if statement.
+When you run server it will no longer exit when you type "exit" you have to manually end the program
+
 Now run the Client.py. Conected should be printed out to the terminal.
 On the sever side it should print "Connected to client with IP: xxx.xxx.xxx.xxx on port: xxxx"
 From the on the Client.py program may be ended by clicking on the exit button on the GUI. 
