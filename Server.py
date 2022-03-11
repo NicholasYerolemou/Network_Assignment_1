@@ -6,20 +6,21 @@ from collections import OrderedDict
 import select
 import sys
 
-port = 12007
-host = "192.168.0.177"  # "102.39.144.36"
-clients = []
-chats = OrderedDict()
-IPUserNameMap = dict()
+port = 12007  # port number the server will run on
+host = "196.47.244.175"  # IP address the server will run on
+clients = []  # the clients that connect
+chats = OrderedDict()  # The chatID and asociated chat object for each created chat
+IPUserNameMap = dict()  # mapping from IP address to user name
 
 
 def processPacket(msg, client):
-    id = msg.getID()
-    if(id == 0):  # send back ack response
+    id = msg.getID()  # the message ID
+    if(id == 0):  # Connection request
         print("Connected to client with IP:", client[0], "on port:", client[1])
+        # reply to the client with this code to let them know they are connected
         reply = {"ID": 1}
         msg = Message(reply, "encode")
-        # add the client to list of connected clients
+        # add the client to list of clients
         if client[0] not in clients:  # if ip address not in clients
             clients.append(client[0])
         sock.sendto(msg.toString().encode(), client)
@@ -28,9 +29,6 @@ def processPacket(msg, client):
         print("code is 1")
     elif(id == 2):
         # make new chat
-        # the data contains all the IPs of the clients added to the chat
-        # members = msg.getData().split()  # gets IP addresses stored in data
-        # size = len(chats)
 
         members = [client[0]]  # adds just the client to the chat
         chatID = 0
@@ -85,7 +83,6 @@ def processPacket(msg, client):
             temp = {client[0]: username}
             IPUserNameMap.update(temp)
 
-        print(IPUserNameMap)
     elif(id == 7):
         chat = chats[msg.getChatID()]
         chat.removeMember(client[0])
