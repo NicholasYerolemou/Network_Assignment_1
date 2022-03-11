@@ -16,7 +16,7 @@ To end the server class at any point type "exit" and press enter
 
 Note: If you are running the server class on a windows computer.
 There is a portion of code that cannot run on windows computers but works on Mac and Linux.
-If you wish to run on windows comment out lines 148 to 151 in Server.py. The lines tarting with i,o,e and the entire if statement.
+If you wish to run on windows comment out lines 146 to 149 in Server.py. The lines tarting with i,o,e and the entire if statement.
 When you run server it will no longer exit when you type "exit" you have to manually end the program
 
 Now run the Client.py. Conected should be printed out to the terminal.
